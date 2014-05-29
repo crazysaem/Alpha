@@ -1,0 +1,13 @@
+/*
+!.gitignore
+!gdx-setup-1.1.0.jar
+!android/assets/
+!android/assets/**
+!android/src/com/
+!android/src/com/**
+!core/src/com/
+!core/src/com/**
+!desktop/src/com/
+!desktop/src/com/**
+!html/src/com/
+!html/src/com/**
