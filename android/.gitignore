@@ -1,0 +1,6 @@
+*
+!.gitignore
+!assets/
+!assets/*
+!src/
+!src/*

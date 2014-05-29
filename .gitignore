@@ -3,3 +3,9 @@
 !gdx-setup-1.1.0.jar
 !android/
 !android/*
+!core/
+!core/*
+!desktop/
+!desktop/*
+!html/
+!html/*
