@@ -1,6 +1,7 @@
 *
 !.gitignore
 !gdx-setup-1.1.0.jar
+!README
 !android/
 !android/*
 !core/

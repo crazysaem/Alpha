@@ -1,0 +1,19 @@
+Tutorial for initial checkout:
+
+(Note: LibGDX 1.1.0 was used)
+Copy gdx-setup-1.1.0.jar to empty directory.
+Generate a project with the following settings:
+
+Name: 			Alpha
+Package: 		com.crazysaem.alpha
+Game class: 	AlphaGame
+
+(The ones below could be changed):
+LibGDX Version:	Release 1.1.0
+Sub Projects:	Desktop, Android, Html
+Extensions:		<None>
+
+PRESS Generate!
+
+After the project was generated, copy all contents from the checkout over to the directory where
+the project was generated. Now import to IDEA and GO!
