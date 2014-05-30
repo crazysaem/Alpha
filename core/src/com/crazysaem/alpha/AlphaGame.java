@@ -2,6 +2,7 @@ package com.crazysaem.alpha;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.crazysaem.alpha.world.World;
 
 public class AlphaGame extends ApplicationAdapter
 {

@@ -49,7 +49,7 @@ public class Style implements Disposable
     Button.ButtonStyle buttonStyle = new Button.ButtonStyle();
     skin.add("tex-carrot-128", new Texture(Gdx.files.internal("icons/carrot-128.png")));
     buttonStyle.up = skin.newDrawable("tex-carrot-128");
-    skin.add("default", buttonStyle);
+    skin.add("carrot", buttonStyle);
   }
 
   public Skin getSkin()

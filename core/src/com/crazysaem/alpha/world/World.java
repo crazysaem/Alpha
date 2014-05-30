@@ -1,4 +1,4 @@
-package com.crazysaem.alpha;
+package com.crazysaem.alpha.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Disposable;
 import com.crazysaem.alpha.actors.Pet;
+import com.crazysaem.alpha.events.EventManager;
+import com.crazysaem.alpha.events.EventTarget;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.hud.HUD;
 
@@ -19,6 +21,7 @@ public class World implements Disposable
   private CameraInputController camController;
   private RenderBatch renderBatch;
 
+  private EventManager eventManager;
   private HUD hud;
   private Pet pet;
 
@@ -34,8 +37,10 @@ public class World implements Disposable
 
     renderBatch = new RenderBatch();
 
-    hud = new HUD();
+    eventManager = new EventManager();
+    hud = new HUD(eventManager);
     pet = new Pet();
+    eventManager.registerEventHandler(EventTarget.PET, pet);
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
@@ -46,6 +51,7 @@ public class World implements Disposable
   public void update(float delta)
   {
     camController.update();
+    eventManager.update();
     hud.update(delta);
     pet.update(delta);
   }

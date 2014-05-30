@@ -4,6 +4,9 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Disposable;
+import com.crazysaem.alpha.events.Event;
+import com.crazysaem.alpha.events.EventHandler;
+import com.crazysaem.alpha.events.EventTarget;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.assets.AssetManager;
 import com.crazysaem.alpha.graphics.Renderable;
@@ -11,7 +14,7 @@ import com.crazysaem.alpha.graphics.Renderable;
 /**
  * Created by crazysaem on 23.05.2014.
  */
-public class Pet implements Renderable, Disposable
+public class Pet implements Renderable, EventHandler, Disposable
 {
   private AssetManager assetManager;
   private AnimationController animationController;
@@ -57,6 +60,12 @@ public class Pet implements Renderable, Disposable
       return;
 
     renderBatch.render(modelInstance);
+  }
+
+  @Override
+  public void handleEvent(Event event)
+  {
+    System.out.println("Pet recieved event: " + event.getAction());
   }
 
   @Override
