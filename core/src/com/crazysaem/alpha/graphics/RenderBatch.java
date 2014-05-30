@@ -19,7 +19,6 @@ public class RenderBatch implements Disposable
   public RenderBatch()
   {
     modelBatch = new ModelBatch();
-    modelBatch = new ModelBatch();
     environment = new Environment();
     environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
     environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
@@ -33,6 +32,11 @@ public class RenderBatch implements Disposable
   public void render(ModelInstance modelInstance)
   {
     modelBatch.render(modelInstance, environment);
+  }
+
+  public void flush()
+  {
+    modelBatch.flush();
   }
 
   public void end()

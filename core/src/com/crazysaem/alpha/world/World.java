@@ -68,6 +68,9 @@ public class World implements Disposable
 
     renderBatch.begin(cam);
     pet.render(renderBatch);
+    //If renderbatch is not flushed here, the texture of the pet is also applied to the carrot
+    //TODO: This seems to be a bug of libgdx, find proper way to do this
+    renderBatch.flush();
     carrot.render(renderBatch);
     renderBatch.end();
 
