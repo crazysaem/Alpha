@@ -21,7 +21,7 @@ public class Style implements Disposable
   public Style()
   {
     skin = new Skin();
-
+    /*
     // Generate a 1x1 white texture and store it in the skin named "white".
     Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
     pixmap.setColor(Color.WHITE);
@@ -44,12 +44,17 @@ public class Style implements Disposable
     labelStyle.font = skin.getFont("default");
     labelStyle.fontColor = Color.BLACK;
     labelStyle.background = skin.newDrawable("white", Color.DARK_GRAY);
-    skin.add("default", labelStyle);
+    skin.add("default", labelStyle);*/
 
-    Button.ButtonStyle buttonStyle = new Button.ButtonStyle();
+    Button.ButtonStyle runButtonStyle = new Button.ButtonStyle();
+    skin.add("tex-run-128", new Texture(Gdx.files.internal("icons/run-128.png")));
+    runButtonStyle.up = skin.newDrawable("tex-run-128");
+    skin.add("run", runButtonStyle);
+
+    Button.ButtonStyle carrotButtonStyle = new Button.ButtonStyle();
     skin.add("tex-carrot-128", new Texture(Gdx.files.internal("icons/carrot-128.png")));
-    buttonStyle.up = skin.newDrawable("tex-carrot-128");
-    skin.add("carrot", buttonStyle);
+    carrotButtonStyle.up = skin.newDrawable("tex-carrot-128");
+    skin.add("carrot", carrotButtonStyle);
   }
 
   public Skin getSkin()

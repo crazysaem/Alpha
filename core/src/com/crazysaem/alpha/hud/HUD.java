@@ -31,12 +31,24 @@ public class HUD implements Disposable
     Gdx.input.setInputProcessor(stage);
 
     table = new Table();
-    table.debug();
-    table.debugTable();
+    //table.debug();
+    //table.debugTable();
     table.setFillParent(true);
     stage.addActor(table);
 
     style = new Style();
+
+    final Button runButton = new Button(style.getSkin(), "run");
+    runButton.addListener(new ChangeListener()
+    {
+      @Override
+      public void changed(ChangeEvent event, Actor actor)
+      {
+        System.out.println("Telling the Pet to run");
+        eventManager.addEvent(new Event(EventTarget.PET, "run"));
+      }
+    });
+    table.add(runButton);
 
     final Button carrotButton = new Button(style.getSkin(), "carrot");
     carrotButton.addListener(new ChangeListener()
@@ -62,7 +74,7 @@ public class HUD implements Disposable
   {
     stage.draw();
 
-    Table.drawDebug(stage);
+    //Table.drawDebug(stage);
   }
 
   public InputProcessor getInputProcessor()

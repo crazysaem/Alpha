@@ -4,11 +4,10 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Disposable;
+import com.crazysaem.alpha.assets.AssetManager;
 import com.crazysaem.alpha.events.Event;
 import com.crazysaem.alpha.events.EventHandler;
-import com.crazysaem.alpha.events.EventTarget;
 import com.crazysaem.alpha.graphics.RenderBatch;
-import com.crazysaem.alpha.assets.AssetManager;
 import com.crazysaem.alpha.graphics.Renderable;
 
 /**
@@ -65,7 +64,17 @@ public class Pet implements Renderable, EventHandler, Disposable
   @Override
   public void handleEvent(Event event)
   {
-    System.out.println("Pet recieved event: " + event.getAction());
+    String action = event.getAction();
+
+    if (action.equals("run"))
+    {
+      animationController.animate(WALK, 5, null, 0.2f);
+      animationController.queue(IDLE, -1, 1.0f, null, 0.3f);
+    }
+    else
+    {
+      System.out.println("Pet received unknown event: " + event.getAction());
+    }
   }
 
   @Override
