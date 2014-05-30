@@ -1,4 +1,4 @@
-package com.crazysaem.alpha;
+package com.crazysaem.alpha.graphics;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Environment;

@@ -1,16 +1,17 @@
-package com.crazysaem.alpha;
+package com.crazysaem.alpha.actors;
 
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Disposable;
+import com.crazysaem.alpha.graphics.RenderBatch;
+import com.crazysaem.alpha.assets.AssetManager;
+import com.crazysaem.alpha.graphics.Renderable;
 
 /**
  * Created by crazysaem on 23.05.2014.
  */
-public class Pet implements Disposable
+public class Pet implements Renderable, Disposable
 {
   private AssetManager assetManager;
   private AnimationController animationController;
@@ -23,16 +24,13 @@ public class Pet implements Disposable
 
   public Pet()
   {
-    assetManager = new AssetManager();
-    assetManager.load(MODEL, Model.class);
-
+    assetManager = AssetManager.getInstance();
     loading = true;
   }
 
   private void finishLoading()
   {
-    Model model = assetManager.get(MODEL, Model.class);
-    modelInstance = new ModelInstance(model);
+    modelInstance = assetManager.getModelInstance("Elephant", "ElephantArmature");
     BoundingBox box = new BoundingBox();
     modelInstance.calculateBoundingBox(box);
     modelInstance.transform.setToTranslation(0, -box.getDimensions().y / 2, 0);
@@ -45,7 +43,7 @@ public class Pet implements Disposable
   public void update(float delta)
   {
     if (loading)
-      if (assetManager.update())
+      if (assetManager.isReady())
         finishLoading();
       else
         return;

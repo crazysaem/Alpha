@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Disposable;
+import com.crazysaem.alpha.graphics.RenderBatch;
+import com.crazysaem.alpha.graphics.Renderable;
 
 /**
  * Created by crazysaem on 28.05.2014.
