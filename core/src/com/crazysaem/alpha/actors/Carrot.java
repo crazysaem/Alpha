@@ -28,14 +28,18 @@ public class Carrot extends Renderable implements EventHandler
   {
     String action = event.getAction();
 
-    if (action.equals(CARROT))
+    if (action.equals(IDLE))
+    {
+      animationController.setAnimation(IDLE, -1);
+    }
+    else if (action.equals(CARROT))
     {
       animationController.setAnimation(CARROT, 1);
       animationController.queue(IDLE, -1, 1.0f, null, 0.0f);
     }
     else
     {
-      System.out.println("Pet received unknown event: " + event.getAction());
+      System.out.println("Carrot received unknown event: " + event.getAction());
     }
   }
 }

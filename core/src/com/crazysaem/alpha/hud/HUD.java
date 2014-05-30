@@ -46,6 +46,7 @@ public class HUD implements Disposable
       {
         System.out.println("Telling the Pet to run");
         eventManager.addEvent(new Event(EventTarget.PET, "walk"));
+        eventManager.addEvent(new Event(EventTarget.CARROT, "idle"));
       }
     });
     table.add(runButton);
