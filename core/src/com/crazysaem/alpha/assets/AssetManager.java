@@ -16,10 +16,12 @@ public class AssetManager implements Disposable
   private static final AssetManager instance = new AssetManager();
   private Model fatModel;
   private boolean loading;
+  private boolean isDisposed;
 
   private AssetManager()
   {
     loading = true;
+    isDisposed = false;
 
     assetManager = new com.badlogic.gdx.assets.AssetManager();
     assetManager.load(FATMODEL, Model.class);
@@ -49,12 +51,15 @@ public class AssetManager implements Disposable
 
   public ModelInstance getModelInstance(final String... rootNodeIds)
   {
-    return new ModelInstance(fatModel, "Elephant", "ElephantArmature");
+    return new ModelInstance(fatModel, rootNodeIds);
   }
 
   @Override
   public void dispose()
   {
-    assetManager.dispose();
+    if (!isDisposed)
+      assetManager.dispose();
+
+    isDisposed = true;
   }
 }

@@ -5,5 +5,6 @@ package com.crazysaem.alpha.events;
  */
 public enum EventTarget
 {
-  PET
+  PET,
+  CARROT
 }

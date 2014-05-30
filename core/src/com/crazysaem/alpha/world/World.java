@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Disposable;
+import com.crazysaem.alpha.actors.Carrot;
 import com.crazysaem.alpha.actors.Pet;
 import com.crazysaem.alpha.events.EventManager;
 import com.crazysaem.alpha.events.EventTarget;
@@ -24,6 +25,7 @@ public class World implements Disposable
   private EventManager eventManager;
   private HUD hud;
   private Pet pet;
+  private Carrot carrot;
 
   public World()
   {
@@ -40,7 +42,9 @@ public class World implements Disposable
     eventManager = new EventManager();
     hud = new HUD(eventManager);
     pet = new Pet();
+    carrot = new Carrot();
     eventManager.registerEventHandler(EventTarget.PET, pet);
+    eventManager.registerEventHandler(EventTarget.CARROT, carrot);
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
@@ -54,6 +58,7 @@ public class World implements Disposable
     eventManager.update();
     hud.update(delta);
     pet.update(delta);
+    carrot.update(delta);
   }
 
   public void render()
@@ -63,6 +68,7 @@ public class World implements Disposable
 
     renderBatch.begin(cam);
     pet.render(renderBatch);
+    carrot.render(renderBatch);
     renderBatch.end();
 
     hud.render();
