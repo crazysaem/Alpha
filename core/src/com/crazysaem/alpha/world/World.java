@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Disposable;
 import com.crazysaem.alpha.actors.Carrot;
+import com.crazysaem.alpha.actors.House;
 import com.crazysaem.alpha.actors.Pet;
 import com.crazysaem.alpha.events.EventManager;
 import com.crazysaem.alpha.events.EventTarget;
@@ -26,6 +27,7 @@ public class World implements Disposable
   private HUD hud;
   private Pet pet;
   private Carrot carrot;
+  private House house;
 
   public World()
   {
@@ -41,10 +43,13 @@ public class World implements Disposable
 
     eventManager = new EventManager();
     hud = new HUD(eventManager);
+
     pet = new Pet();
     carrot = new Carrot();
     eventManager.registerEventHandler(EventTarget.PET, pet);
     eventManager.registerEventHandler(EventTarget.CARROT, carrot);
+
+    house = new House();
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
@@ -59,6 +64,7 @@ public class World implements Disposable
     hud.update(delta);
     pet.update(delta);
     carrot.update(delta);
+    house.update(delta);
   }
 
   public void render()
@@ -66,12 +72,14 @@ public class World implements Disposable
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-    renderBatch.begin(cam);
-    pet.render(renderBatch);
     //If renderbatch is not flushed here, the texture of the pet is also applied to the carrot
     //TODO: This seems to be a bug of libgdx, find proper way to do this
+    renderBatch.begin(cam);
+    pet.render(renderBatch);
     renderBatch.flush();
     carrot.render(renderBatch);
+    renderBatch.flush();
+    house.render(renderBatch);
     renderBatch.end();
 
     hud.render();
