@@ -13,7 +13,7 @@ public abstract class Renderable implements Disposable
   protected AssetManager assetManager;
   protected AnimationController animationController;
   protected ModelInstance modelInstance;
-  private boolean loading;
+  protected boolean loading;
 
   public Renderable()
   {
@@ -25,6 +25,11 @@ public abstract class Renderable implements Disposable
   protected abstract void finishLoading();
 
   protected void finishLoading(final String... rootNodeIds)
+  {
+    finishLoading(true, rootNodeIds);
+  }
+
+  protected void finishLoading(boolean useAnimationController, final String... rootNodeIds)
   {
     modelInstance = assetManager.getModelInstance(rootNodeIds);
     animationController = new AnimationController(modelInstance);
@@ -40,7 +45,8 @@ public abstract class Renderable implements Disposable
       else
         return;
 
-    animationController.update(delta);
+    if (animationController != null)
+      animationController.update(delta);
   }
 
   public void render(RenderBatch renderBatch)

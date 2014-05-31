@@ -32,7 +32,7 @@ public class World implements Disposable
   public World()
   {
     cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    cam.position.set(0f, 0f, 5f);
+    cam.position.set(0f, 0f, 8f);
     cam.lookAt(0, 0, 0);
     cam.near = 1f;
     cam.far = 300f;
