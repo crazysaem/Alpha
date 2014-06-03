@@ -2,6 +2,8 @@ package com.crazysaem.alpha.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -18,7 +20,9 @@ import com.crazysaem.alpha.events.EventTarget;
 public class HUD implements Disposable
 {
   private Stage stage;
+  private SpriteBatch batch;
   private Table table;
+  private BitmapFont font;
 
   private Style style;
   private EventManager eventManager;
@@ -29,12 +33,15 @@ public class HUD implements Disposable
     stage = new Stage();
     stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
     Gdx.input.setInputProcessor(stage);
+    batch = (SpriteBatch)stage.getBatch();
 
     table = new Table();
     //table.debug();
     //table.debugTable();
     table.setFillParent(true);
     stage.addActor(table);
+
+    font = new BitmapFont();
 
     style = new Style();
 
@@ -51,7 +58,7 @@ public class HUD implements Disposable
     });
     table.add(runButton);
 
-    final Button carrotButton = new Button(style.getSkin(), "carrot");
+    final Button carrotButton = new HUDButton(style.getSkin(), "carrot");
     carrotButton.addListener(new ChangeListener()
     {
       @Override
@@ -88,6 +95,7 @@ public class HUD implements Disposable
   public void dispose()
   {
     stage.dispose();
+    font.dispose();
     style.dispose();
   }
 }
