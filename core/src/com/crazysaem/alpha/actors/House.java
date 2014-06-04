@@ -1,5 +1,9 @@
 package com.crazysaem.alpha.actors;
 
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 
@@ -24,6 +28,9 @@ public class House extends Renderable
     houseParts.add(new HousePart("Floor"));
     houseParts.add(new HousePart("Wall0"));
     houseParts.add(new HousePart("Wall1"));
+    houseParts.add(new HousePart("ArmChair"));
+    houseParts.add(new HousePart("Shelf"));
+    houseParts.add(new ShelfBox());
 
     loading = false;
   }
@@ -65,6 +72,23 @@ public class House extends Renderable
       //The magic number is half the height of the pet.
       //TODO: Change this to not use it like a magic number but get it dynamically
       modelInstance.transform.setToTranslation(0, -1.1198419332504272f, 0);
+    }
+  }
+
+  class ShelfBox extends HousePart
+  {
+    public ShelfBox()
+    {
+      super("ShelfBox");
+    }
+
+    @Override
+    protected void finishLoading()
+    {
+      super.finishLoading();
+
+      Material material = modelInstance.materials.get(0);
+      material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
     }
   }
 }
