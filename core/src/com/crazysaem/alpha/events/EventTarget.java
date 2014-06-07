@@ -6,5 +6,9 @@ package com.crazysaem.alpha.events;
 public enum EventTarget
 {
   PET,
-  CARROT
+  CARROT,
+  HOUSE,
+  SHELF,
+  ARMCHAIR,
+  NONE
 }

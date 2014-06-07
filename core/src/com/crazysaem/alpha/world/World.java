@@ -7,12 +7,16 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Disposable;
 import com.crazysaem.alpha.actors.Carrot;
+import com.crazysaem.alpha.actors.Furniture;
 import com.crazysaem.alpha.actors.House;
 import com.crazysaem.alpha.actors.Pet;
 import com.crazysaem.alpha.events.EventManager;
 import com.crazysaem.alpha.events.EventTarget;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.hud.HUD;
+import com.crazysaem.alpha.picking.RayPicking;
+import com.crazysaem.alpha.picking.StaticTarget;
+import com.crazysaem.alpha.picking.StaticTargetPool;
 
 /**
  * Created by crazysaem on 23.05.2014.
@@ -28,12 +32,14 @@ public class World implements Disposable
   private Pet pet;
   private Carrot carrot;
   private House house;
+  private Furniture furniture;
 
   public World()
   {
     cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    cam.position.set(0f, 0f, 8f);
-    cam.lookAt(0, 0, 0);
+    //Place camera a little higher
+    cam.position.set(0f, 1.12f, 8f);
+    cam.lookAt(0, 1.12f, 0);
     cam.near = 1f;
     cam.far = 300f;
     cam.update();
@@ -46,13 +52,19 @@ public class World implements Disposable
 
     pet = new Pet();
     carrot = new Carrot();
+    furniture = new Furniture();
     eventManager.registerEventHandler(EventTarget.PET, pet);
     eventManager.registerEventHandler(EventTarget.CARROT, carrot);
+    eventManager.registerEventHandler(EventTarget.ARMCHAIR, furniture);
 
     house = new House();
 
+    StaticTargetPool staticTargetPool = new StaticTargetPool();
+    staticTargetPool.add(new StaticTarget(furniture, EventTarget.ARMCHAIR));
+
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
+    inputMultiplexer.addProcessor(new RayPicking(cam, eventManager, staticTargetPool));
     inputMultiplexer.addProcessor(camController);
     Gdx.input.setInputProcessor(inputMultiplexer);
   }
@@ -65,6 +77,7 @@ public class World implements Disposable
     pet.update(delta);
     carrot.update(delta);
     house.update(delta);
+    furniture.update(delta);
   }
 
   public void render()
@@ -80,6 +93,8 @@ public class World implements Disposable
     carrot.render(renderBatch);
     renderBatch.flush();
     house.render(renderBatch);
+    renderBatch.flush();
+    furniture.render(renderBatch);
     renderBatch.end();
 
     hud.render();

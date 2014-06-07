@@ -32,7 +32,7 @@ public class HUD implements Disposable
     this.eventManager = eventManager;
     stage = new Stage();
     stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-    Gdx.input.setInputProcessor(stage);
+    //Gdx.input.setInputProcessor(stage);
     batch = (SpriteBatch)stage.getBatch();
 
     table = new Table();

@@ -18,9 +18,6 @@ public class Pet extends Renderable implements EventHandler
   {
     super.finishLoading("Elephant", "ElephantArmature");
 
-    BoundingBox box = new BoundingBox();
-    modelInstance.calculateBoundingBox(box);
-    modelInstance.transform.setToTranslation(0, -box.getDimensions().y / 2, 0);
     animationController.setAnimation(IDLE, -1);
   }
 

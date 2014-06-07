@@ -3,9 +3,9 @@ package com.crazysaem.alpha.actors;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
+import com.crazysaem.alpha.picking.StaticRenderable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class House extends Renderable
     houseParts.add(new HousePart("Floor"));
     houseParts.add(new HousePart("Wall0"));
     houseParts.add(new HousePart("Wall1"));
-    houseParts.add(new HousePart("ArmChair"));
+    //houseParts.add(new HousePart("ArmChair"));
     houseParts.add(new HousePart("Shelf"));
     houseParts.add(new ShelfBox());
 
@@ -55,7 +55,7 @@ public class House extends Renderable
     }
   }
 
-  class HousePart extends Renderable
+  class HousePart extends StaticRenderable
   {
     private String housePart;
 
@@ -68,10 +68,6 @@ public class House extends Renderable
     protected void finishLoading()
     {
       super.finishLoading(false, housePart);
-
-      //The magic number is half the height of the pet.
-      //TODO: Change this to not use it like a magic number but get it dynamically
-      modelInstance.transform.setToTranslation(0, -1.1198419332504272f, 0);
     }
   }
 

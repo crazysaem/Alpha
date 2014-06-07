@@ -32,7 +32,8 @@ public abstract class Renderable implements Disposable
   protected void finishLoading(boolean useAnimationController, final String... rootNodeIds)
   {
     modelInstance = assetManager.getModelInstance(rootNodeIds);
-    animationController = new AnimationController(modelInstance);
+    if (useAnimationController)
+      animationController = new AnimationController(modelInstance);
 
     loading = false;
   }
@@ -55,6 +56,11 @@ public abstract class Renderable implements Disposable
       return;
 
     renderBatch.render(modelInstance);
+  }
+
+  public boolean isFinished()
+  {
+    return !loading;
   }
 
   @Override
