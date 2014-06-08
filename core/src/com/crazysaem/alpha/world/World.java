@@ -6,17 +6,18 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Disposable;
-import com.crazysaem.alpha.actors.Carrot;
-import com.crazysaem.alpha.actors.Furniture;
-import com.crazysaem.alpha.actors.House;
-import com.crazysaem.alpha.actors.Pet;
+import com.crazysaem.alpha.actors.*;
 import com.crazysaem.alpha.events.EventManager;
 import com.crazysaem.alpha.events.EventTarget;
 import com.crazysaem.alpha.graphics.RenderBatch;
+import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.hud.HUD;
 import com.crazysaem.alpha.picking.RayPicking;
 import com.crazysaem.alpha.picking.StaticTarget;
 import com.crazysaem.alpha.picking.StaticTargetPool;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by crazysaem on 23.05.2014.
@@ -29,10 +30,8 @@ public class World implements Disposable
 
   private EventManager eventManager;
   private HUD hud;
-  private Pet pet;
-  private Carrot carrot;
-  private House house;
-  private Furniture furniture;
+
+  private List<Renderable> renderables;
 
   public World()
   {
@@ -46,18 +45,27 @@ public class World implements Disposable
     camController = new CameraInputController(cam);
 
     renderBatch = new RenderBatch();
+    renderables = new ArrayList<Renderable>();
 
     eventManager = new EventManager();
     hud = new HUD(eventManager);
 
-    pet = new Pet();
-    carrot = new Carrot();
-    furniture = new Furniture();
-    house = new House();
+    Pet pet = new Pet();
+    Carrot carrot = new Carrot();
+    Furniture furniture = new Furniture();
+    House house = new House();
+    Outside outside = new Outside();
+
     eventManager.registerEventHandler(EventTarget.PET, pet);
     eventManager.registerEventHandler(EventTarget.CARROT, carrot);
     eventManager.registerEventHandler(EventTarget.ARMCHAIR, furniture);
     eventManager.registerEventHandler(EventTarget.HOUSE, house);
+
+    renderables.add(pet);
+    renderables.add(carrot);
+    renderables.add(furniture);
+    renderables.add(house);
+    renderables.add(outside);
 
     StaticTargetPool staticTargetPool = new StaticTargetPool();
     staticTargetPool.add(new StaticTarget(house.houseParts.get(0), EventTarget.HOUSE));
@@ -75,10 +83,8 @@ public class World implements Disposable
     camController.update();
     eventManager.update();
     hud.update(delta);
-    pet.update(delta);
-    carrot.update(delta);
-    house.update(delta);
-    furniture.update(delta);
+    for (Renderable renderable : renderables)
+      renderable.update(delta);
   }
 
   public void render()
@@ -86,18 +92,16 @@ public class World implements Disposable
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-    //If renderbatch is not flushed here, the texture of the pet is also applied to the carrot
-    //TODO: This seems to be a bug of libgdx, find proper way to do this
-    renderBatch.begin(cam);
-    pet.render(renderBatch);
-    renderBatch.flush();
-    carrot.render(renderBatch);
-    renderBatch.flush();
-    house.render(renderBatch);
-    renderBatch.flush();
-    furniture.render(renderBatch);
-    renderBatch.end();
 
+    renderBatch.begin(cam);
+    for (Renderable renderable : renderables)
+    {
+      renderable.render(renderBatch);
+      //If renderbatch is not flushed here, the texture of the pet is also applied to the carrot
+      //TODO: This seems to be a bug of libgdx, find proper way to do this
+      renderBatch.flush();
+    }
+    renderBatch.end();
     hud.render();
   }
 

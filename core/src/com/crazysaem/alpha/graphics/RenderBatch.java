@@ -14,14 +14,14 @@ import com.badlogic.gdx.utils.Disposable;
 public class RenderBatch implements Disposable
 {
   private ModelBatch modelBatch;
-  private Environment environment;
+  private Environment defaultEnvironment;
 
   public RenderBatch()
   {
     modelBatch = new ModelBatch();
-    environment = new Environment();
-    environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-    environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+    defaultEnvironment = new Environment();
+    defaultEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+    defaultEnvironment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
   }
 
   public void begin(Camera cam)
@@ -30,6 +30,11 @@ public class RenderBatch implements Disposable
   }
 
   public void render(ModelInstance modelInstance)
+  {
+    render(modelInstance, defaultEnvironment);
+  }
+
+  public void render(ModelInstance modelInstance, Environment environment)
   {
     modelBatch.render(modelInstance, environment);
   }

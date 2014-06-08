@@ -1,31 +1,24 @@
 package com.crazysaem.alpha.picking;
 
 import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.VertexAttributes;
-import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
-import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 
 import java.nio.ShortBuffer;
-import java.util.ArrayList;
 
 /**
  * Created by crazysaem on 07.06.2014.
  */
 public abstract class StaticRenderable extends Renderable
 {
-  protected BoundingBox boundingBox = new BoundingBox();
-  protected float[] vertices;
-  protected short[] indices;
-  protected int vertexSize;
+  private BoundingBox boundingBox = new BoundingBox();
+  private float[] vertices;
+  private short[] indices;
+  private int vertexSize;
   private Ray geometryRay = new Ray(new Vector3(), new Vector3());
   private Vector3 intersection = new Vector3();
 
