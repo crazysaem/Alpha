@@ -1,6 +1,7 @@
 package com.crazysaem.alpha.picking;
 
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.crazysaem.alpha.events.EventTarget;
@@ -14,6 +15,8 @@ import java.util.List;
 public class StaticTargetPool
 {
   private List<StaticTarget> staticTargets;
+  private Vector3 intersection;
+  private EventTarget eventTarget = null;
 
   public StaticTargetPool()
   {
@@ -27,12 +30,25 @@ public class StaticTargetPool
 
   public EventTarget collisonCheck(Ray ray)
   {
+    float distance = Float.MAX_VALUE;
+    eventTarget = null;
+
     for (StaticTarget staticTarget : staticTargets)
     {
+      float distanceTemp = staticTarget.getStaticRenderable().collisionTest(ray);
+      if (distanceTemp > 0)
+      {
+        if (distanceTemp < distance)
+        {
+          distance = distanceTemp;
+          eventTarget = staticTarget.getEventTarget();
+        }
+      }
+      /*
       if (staticTarget.getStaticRenderable().collisionTest(ray))
-        return staticTarget.getEventTarget();
+        return staticTarget.getEventTarget();*/
     }
 
-    return null;
+    return eventTarget;
   }
 }

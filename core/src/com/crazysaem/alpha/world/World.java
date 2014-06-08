@@ -53,13 +53,16 @@ public class World implements Disposable
     pet = new Pet();
     carrot = new Carrot();
     furniture = new Furniture();
+    house = new House();
     eventManager.registerEventHandler(EventTarget.PET, pet);
     eventManager.registerEventHandler(EventTarget.CARROT, carrot);
     eventManager.registerEventHandler(EventTarget.ARMCHAIR, furniture);
+    eventManager.registerEventHandler(EventTarget.HOUSE, house);
 
-    house = new House();
+
 
     StaticTargetPool staticTargetPool = new StaticTargetPool();
+    //staticTargetPool.add(new StaticTarget(house.houseParts.get(0), EventTarget.HOUSE));
     staticTargetPool.add(new StaticTarget(furniture, EventTarget.ARMCHAIR));
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();

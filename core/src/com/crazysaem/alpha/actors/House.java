@@ -3,6 +3,8 @@ package com.crazysaem.alpha.actors;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.crazysaem.alpha.events.Event;
+import com.crazysaem.alpha.events.EventHandler;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.picking.StaticRenderable;
@@ -13,24 +15,26 @@ import java.util.List;
 /**
  * Created by crazysaem on 31.05.2014.
  */
-public class House extends Renderable
+public class House extends Renderable implements EventHandler
 {
-  private List<HousePart> houseParts;
+  public List<HousePart> houseParts;
 
   public House()
   {
     houseParts = new LinkedList<HousePart>();
-  }
 
-  @Override
-  protected void finishLoading()
-  {
     houseParts.add(new HousePart("Floor"));
     houseParts.add(new HousePart("Wall0"));
     houseParts.add(new HousePart("Wall1"));
     //houseParts.add(new HousePart("ArmChair"));
     houseParts.add(new HousePart("Shelf"));
     houseParts.add(new ShelfBox());
+  }
+
+  @Override
+  protected void finishLoading()
+  {
+
 
     loading = false;
   }
@@ -53,6 +57,12 @@ public class House extends Renderable
       housePart.render(renderBatch);
       renderBatch.flush();
     }
+  }
+
+  @Override
+  public void handleEvent(Event event)
+  {
+    System.out.println(event.getAction());
   }
 
   class HousePart extends StaticRenderable
