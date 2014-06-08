@@ -93,7 +93,7 @@ public class House extends Renderable implements EventHandler
     {
       super.finishLoading();
 
-      Material material = modelInstance.materials.get(0);
+      Material material = modelInstance.materials.first();
       material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
     }
   }

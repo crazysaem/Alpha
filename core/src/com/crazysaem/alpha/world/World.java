@@ -35,6 +35,8 @@ public class World implements Disposable
 
   public World()
   {
+    Gdx.gl.glClearColor(70f / 256f, 94f / 256f, 140f / 256f, 1.0f);
+
     cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     //Place camera a little higher
     cam.position.set(0f, 1.12f, 8f);
@@ -64,8 +66,8 @@ public class World implements Disposable
     renderables.add(pet);
     renderables.add(carrot);
     renderables.add(furniture);
-    renderables.add(house);
     renderables.add(outside);
+    renderables.add(house);
 
     StaticTargetPool staticTargetPool = new StaticTargetPool();
     staticTargetPool.add(new StaticTarget(house.houseParts.get(0), EventTarget.HOUSE));
@@ -91,7 +93,6 @@ public class World implements Disposable
   {
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
 
     renderBatch.begin(cam);
     for (Renderable renderable : renderables)
