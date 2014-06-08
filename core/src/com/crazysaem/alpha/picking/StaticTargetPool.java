@@ -15,7 +15,6 @@ import java.util.List;
 public class StaticTargetPool
 {
   private List<StaticTarget> staticTargets;
-  private Vector3 intersection;
   private EventTarget eventTarget = null;
 
   public StaticTargetPool()
@@ -44,9 +43,6 @@ public class StaticTargetPool
           eventTarget = staticTarget.getEventTarget();
         }
       }
-      /*
-      if (staticTarget.getStaticRenderable().collisionTest(ray))
-        return staticTarget.getEventTarget();*/
     }
 
     return eventTarget;

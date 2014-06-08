@@ -59,10 +59,8 @@ public class World implements Disposable
     eventManager.registerEventHandler(EventTarget.ARMCHAIR, furniture);
     eventManager.registerEventHandler(EventTarget.HOUSE, house);
 
-
-
     StaticTargetPool staticTargetPool = new StaticTargetPool();
-    //staticTargetPool.add(new StaticTarget(house.houseParts.get(0), EventTarget.HOUSE));
+    staticTargetPool.add(new StaticTarget(house.houseParts.get(0), EventTarget.HOUSE));
     staticTargetPool.add(new StaticTarget(furniture, EventTarget.ARMCHAIR));
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();

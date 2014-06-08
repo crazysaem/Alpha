@@ -28,9 +28,6 @@ public abstract class StaticRenderable extends Renderable
   protected int vertexSize;
   private Ray geometryRay = new Ray(new Vector3(), new Vector3());
   private Vector3 intersection = new Vector3();
-  private ModelBuilder modelBuilder = new ModelBuilder();
-  ModelInstance arrow0 = null, arrow1 = null;
-  ModelInstance sphere = new ModelInstance(modelBuilder.createSphere(0.5f, 0.5f, 0.5f, 10, 10, new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal));
 
   public float collisionTest(Ray ray)
   {
@@ -39,37 +36,11 @@ public abstract class StaticRenderable extends Renderable
       geometryRay.set(ray.origin.x, -ray.origin.z, ray.origin.y, ray.direction.x, -ray.direction.z, ray.direction.y);
       if (Intersector.intersectRayTriangles(geometryRay, vertices, indices, vertexSize, intersection))
       {
-        //if (intersection.x == 0 && intersection.y == 0 && intersection.z == 0)
-        //  return -1;
-
-        Vector3 pos0 = new Vector3(ray.origin.x + ray.direction.x * 20, ray.origin.y + ray.direction.y * 20, ray.origin.z + ray.direction.z * 20);
-        Model a0 = modelBuilder.createArrow(ray.origin, pos0, new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-        arrow0 = new ModelInstance(a0);
-
-        Vector3 pos1 = new Vector3(geometryRay.origin.x + geometryRay.direction.x * 20, geometryRay.origin.y + geometryRay.direction.y * 20, geometryRay.origin.z + geometryRay.direction.z * 20);
-        Model a1 = modelBuilder.createArrow(geometryRay.origin, pos1, new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-        arrow1 = new ModelInstance(a1);
-
-        sphere.transform.setToTranslation(intersection.x, intersection.y, intersection.z);
-
         return Math.abs(geometryRay.origin.dst(intersection));
       }
     }
 
     return -1;
-  }
-
-  @Override
-  public void render(RenderBatch renderBatch)
-  {
-    super.render(renderBatch);
-
-    if (arrow0 != null && arrow1 != null)
-    {
-      //renderBatch.render(arrow0);
-      //renderBatch.render(arrow1);
-      //renderBatch.render(sphere);
-    }
   }
 
   @Override
@@ -97,8 +68,8 @@ public abstract class StaticRenderable extends Renderable
   @Override
   public void dispose()
   {
-    /*vertices = null;
-    indices = null;*/
+    vertices = null;
+    indices = null;
     super.dispose();
   }
 }
