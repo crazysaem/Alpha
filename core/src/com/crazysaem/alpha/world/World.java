@@ -92,7 +92,8 @@ public class World implements Disposable
   private void finishedLoading()
   {
     //All Models have been initialized
-    pathGraph.recalculateGraph(-24, -24, 24, 24);
+    pathGraph.recalculateGraph(-9, -9, 9, 9);
+    pathGraph.createDebugRenderGraphics();
 
     finishedLoading = true;
   }
@@ -128,6 +129,7 @@ public class World implements Disposable
       //TODO: This seems to be a bug of libgdx, find proper way to do this
       renderBatch.flush();
     }
+    pathGraph.debugRender(renderBatch);
     renderBatch.end();
     hud.render();
   }

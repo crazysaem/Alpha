@@ -40,11 +40,25 @@ public abstract class StaticRenderable extends Renderable
 
   public boolean collisionTest(Ray ray, float distance)
   {
+    if (Intersector.intersectRayBoundsFast(ray, boundingBox))
+    {
+      //Because the raw geometry is still stored like the Blender coordinate system, we have to map the ray
+      //from the libGDX coordinate system to the Blender one.
+      geometryRay.set(ray.origin.x, -ray.origin.z, ray.origin.y, ray.direction.x, -ray.direction.z, ray.direction.y);
+      if (Intersector.intersectRayTriangles(geometryRay, vertices, indices, vertexSize, intersection))
+      {
+        float distanceTest =  Math.abs(geometryRay.origin.dst(intersection));
+        if (distance > distanceTest)
+          return true;
+      }
+    }
+
+    /*
     if (Intersector.intersectRayBounds(ray, boundingBox, intersection))
     {
       if (distance > Math.abs(ray.origin.dst(intersection)))
         return true;
-    }
+    }*/
 
     return false;
   }

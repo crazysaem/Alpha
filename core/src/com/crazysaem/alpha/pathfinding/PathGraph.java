@@ -1,8 +1,17 @@
 package com.crazysaem.alpha.pathfinding;
 
+import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.picking.StaticTargetPool;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by crazysaem on 09.06.2014.
@@ -26,6 +35,8 @@ public class PathGraph
   private Node[][] nodes;
   private Ray ray;
   private int xShift, zShift;
+  private int x0, z0, x1, z1;
+  private List<ModelInstance> debugModelInstances = new ArrayList<ModelInstance>();;
 
   public PathGraph(StaticTargetPool staticTargetPool)
   {
@@ -35,11 +46,16 @@ public class PathGraph
 
   public void recalculateGraph(int x0, int z0, int x1, int z1)
   {
+    this.x0 = x0;
+    this.z0 = z0;
+    this.x1 = x1;
+    this.z1 = z1;
+    xShift = -x0;
+    zShift = -z0;
+
     Node node;
     int xLength = x1 - x0;
     int zLength = z1 - z0;
-    xShift = -x0;
-    zShift = -z0;
     int xMin = Math.min(x0, x1);
     int xMax = Math.max(x0, x1);
     int zMin = Math.min(z0, z1);
@@ -165,5 +181,51 @@ public class PathGraph
     //TODO: Try to Check Line vs AABB instead of Ray vs AABB and then checking the distance.
     //Could lead to a speed boost
     return !staticTargetPool.collisonCheck(ray, 1.8f);
+  }
+
+  public void createDebugRenderGraphics()
+  {
+    Node node;
+    ModelBuilder modelBuilder = new ModelBuilder();
+    Model sphereModel = modelBuilder.createSphere(0.5f, 0.5f, 0.5f, 2, 2, new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    ModelInstance sphere;
+
+    Vector3 v0 = new Vector3(0.0f, 0.5f, 0.0f);
+    Model arrowModelL   = modelBuilder.createArrow(v0, new Vector3(-0.8f, 0.5f, 0.0f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelTL  = modelBuilder.createArrow(v0, new Vector3(-0.8f, 0.5f, 0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelT   = modelBuilder.createArrow(v0, new Vector3( 0.0f, 0.5f, 0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelTR  = modelBuilder.createArrow(v0, new Vector3( 0.8f, 0.5f, 0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelR   = modelBuilder.createArrow(v0, new Vector3( 0.8f, 0.5f, 0.0f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelBR  = modelBuilder.createArrow(v0, new Vector3( 0.8f, 0.5f,-0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelB   = modelBuilder.createArrow(v0, new Vector3( 0.0f, 0.5f,-0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelBL  = modelBuilder.createArrow(v0, new Vector3(-0.8f, 0.5f,-0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    ModelInstance arrow;
+
+    for (int x = x0; x <= x1; x++)
+    {
+      for (int z = z0; z <= z1; z++)
+      {
+        sphere = new ModelInstance(sphereModel);
+        sphere.transform.setToTranslation(x, 1.0f, z);
+        debugModelInstances.add(sphere);
+
+        node = getNode(x, z);
+
+        if (node.L  != null) {arrow = new ModelInstance(arrowModelL);   arrow.transform.setToTranslation(x, 0.5f, z); debugModelInstances.add(arrow);}
+        if (node.TL != null) {arrow = new ModelInstance(arrowModelTL);  arrow.transform.setToTranslation(x, 0.5f, z); debugModelInstances.add(arrow);}
+        if (node.T  != null) {arrow = new ModelInstance(arrowModelT);   arrow.transform.setToTranslation(x, 0.5f, z); debugModelInstances.add(arrow);}
+        if (node.TR != null) {arrow = new ModelInstance(arrowModelTR);  arrow.transform.setToTranslation(x, 0.5f, z); debugModelInstances.add(arrow);}
+        if (node.R  != null) {arrow = new ModelInstance(arrowModelR);   arrow.transform.setToTranslation(x, 0.5f, z); debugModelInstances.add(arrow);}
+        if (node.BR != null) {arrow = new ModelInstance(arrowModelBR);  arrow.transform.setToTranslation(x, 0.5f, z); debugModelInstances.add(arrow);}
+        if (node.B  != null) {arrow = new ModelInstance(arrowModelB);   arrow.transform.setToTranslation(x, 0.5f, z); debugModelInstances.add(arrow);}
+        if (node.BL != null) {arrow = new ModelInstance(arrowModelBL);  arrow.transform.setToTranslation(x, 0.5f, z); debugModelInstances.add(arrow);}
+      }
+    }
+  }
+
+  public void debugRender(RenderBatch renderBatch)
+  {
+    for (ModelInstance modelInstance : debugModelInstances)
+      renderBatch.render(modelInstance);
   }
 }
