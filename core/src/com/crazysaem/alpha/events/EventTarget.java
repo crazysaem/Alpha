@@ -10,5 +10,6 @@ public enum EventTarget
   HOUSE,
   SHELF,
   ARMCHAIR,
+  GROUND,
   NONE
 }

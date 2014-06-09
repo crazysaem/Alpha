@@ -9,9 +9,11 @@ import com.badlogic.gdx.utils.Disposable;
 import com.crazysaem.alpha.actors.*;
 import com.crazysaem.alpha.events.EventManager;
 import com.crazysaem.alpha.events.EventTarget;
+import com.crazysaem.alpha.graphics.CameraInputControllerExt;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.hud.HUD;
+import com.crazysaem.alpha.pathfinding.PathGraph;
 import com.crazysaem.alpha.picking.RayPicking;
 import com.crazysaem.alpha.picking.StaticTarget;
 import com.crazysaem.alpha.picking.StaticTargetPool;
@@ -27,14 +29,15 @@ public class World implements Disposable
   private PerspectiveCamera cam;
   private CameraInputController camController;
   private RenderBatch renderBatch;
-
   private EventManager eventManager;
   private HUD hud;
-
   private List<Renderable> renderables;
+  private PathGraph pathGraph;
+  private boolean finishedLoading;
 
   public World()
   {
+    finishedLoading = false;
     Gdx.gl.glClearColor(70f / 256f, 94f / 256f, 140f / 256f, 1.0f);
 
     cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -44,7 +47,7 @@ public class World implements Disposable
     cam.near = 1f;
     cam.far = 300f;
     cam.update();
-    camController = new CameraInputController(cam);
+    camController = new CameraInputControllerExt(cam);
 
     renderBatch = new RenderBatch();
     renderables = new ArrayList<Renderable>();
@@ -62,6 +65,7 @@ public class World implements Disposable
     eventManager.registerEventHandler(EventTarget.CARROT, carrot);
     eventManager.registerEventHandler(EventTarget.ARMCHAIR, furniture);
     eventManager.registerEventHandler(EventTarget.HOUSE, house);
+    eventManager.registerEventHandler(EventTarget.GROUND, outside);
 
     renderables.add(pet);
     renderables.add(carrot);
@@ -71,13 +75,26 @@ public class World implements Disposable
 
     StaticTargetPool staticTargetPool = new StaticTargetPool();
     staticTargetPool.add(new StaticTarget(house.houseParts.get(0), EventTarget.HOUSE));
+    staticTargetPool.add(new StaticTarget(house.houseParts.get(1), EventTarget.HOUSE));
+    staticTargetPool.add(new StaticTarget(house.houseParts.get(2), EventTarget.HOUSE));
     staticTargetPool.add(new StaticTarget(furniture, EventTarget.ARMCHAIR));
+    staticTargetPool.add(new StaticTarget(outside, EventTarget.GROUND));
+
+    pathGraph = new PathGraph(staticTargetPool);
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
     inputMultiplexer.addProcessor(new RayPicking(cam, eventManager, staticTargetPool));
     inputMultiplexer.addProcessor(camController);
     Gdx.input.setInputProcessor(inputMultiplexer);
+  }
+
+  private void finishedLoading()
+  {
+    //All Models have been initialized
+    pathGraph.recalculateGraph(-24, -24, 24, 24);
+
+    finishedLoading = true;
   }
 
   public void update(float delta)
@@ -87,6 +104,15 @@ public class World implements Disposable
     hud.update(delta);
     for (Renderable renderable : renderables)
       renderable.update(delta);
+
+    if (!finishedLoading)
+    {
+      for (Renderable renderable : renderables)
+        if (!renderable.isFinished())
+          return;
+
+      finishedLoading();
+    }
   }
 
   public void render()

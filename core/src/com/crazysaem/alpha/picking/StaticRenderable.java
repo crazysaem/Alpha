@@ -26,6 +26,8 @@ public abstract class StaticRenderable extends Renderable
   {
     if (Intersector.intersectRayBoundsFast(ray, boundingBox))
     {
+      //Because the raw geometry is still stored like the Blender coordinate system, we have to map the ray
+      //from the libGDX coordinate system to the Blender one.
       geometryRay.set(ray.origin.x, -ray.origin.z, ray.origin.y, ray.direction.x, -ray.direction.z, ray.direction.y);
       if (Intersector.intersectRayTriangles(geometryRay, vertices, indices, vertexSize, intersection))
       {
@@ -34,6 +36,27 @@ public abstract class StaticRenderable extends Renderable
     }
 
     return -1;
+  }
+
+  public boolean collisionTest(Ray ray, float distance)
+  {
+    if (Intersector.intersectRayBounds(ray, boundingBox, intersection))
+    {
+      if (distance > Math.abs(ray.origin.dst(intersection)))
+        return true;
+    }
+
+    return false;
+  }
+
+  public boolean collisionTestFast(Ray ray)
+  {
+    if (Intersector.intersectRayBoundsFast(ray, boundingBox))
+    {
+      return true;
+    }
+
+    return false;
   }
 
   @Override
@@ -53,6 +76,7 @@ public abstract class StaticRenderable extends Renderable
     indicesBuffer.get(indices, 0, meshPart.numVertices);
     indicesBuffer.position(pos);
 
+    //TODO: Share vertices array between different static Renderables, because it is often the same
     int numVertices = mesh.getNumVertices();
     vertices = new float[numVertices * vertexSize];
     mesh.getVertices(vertices);

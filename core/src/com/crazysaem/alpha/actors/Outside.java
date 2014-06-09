@@ -5,13 +5,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.crazysaem.alpha.events.Event;
+import com.crazysaem.alpha.events.EventHandler;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
+import com.crazysaem.alpha.picking.StaticRenderable;
 
 /**
  * Created by crazysaem on 08.06.2014.
  */
-public class Outside extends Renderable
+public class Outside extends StaticRenderable implements EventHandler
 {
   private Sky sky;
 
@@ -56,6 +59,12 @@ public class Outside extends Renderable
     renderBatch.render(modelInstance);
     renderBatch.flush();
     sky.render(renderBatch);
+  }
+
+  @Override
+  public void handleEvent(Event event)
+  {
+    System.out.println("Ground recieved event: " + event.getAction());
   }
 
   class Sky extends Renderable

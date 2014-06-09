@@ -34,8 +34,6 @@ public class House extends Renderable implements EventHandler
   @Override
   protected void finishLoading()
   {
-
-
     loading = false;
   }
 

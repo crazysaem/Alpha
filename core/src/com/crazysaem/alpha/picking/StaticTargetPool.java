@@ -44,4 +44,26 @@ public class StaticTargetPool
 
     return eventTarget;
   }
+
+  public boolean collisonCheck(Ray ray, float distance)
+  {
+    for (StaticTarget staticTarget : staticTargets)
+    {
+      if (staticTarget.getStaticRenderable().collisionTest(ray, distance))
+        return true;
+    }
+
+    return false;
+  }
+
+  public boolean collisonCheckFast(Ray ray)
+  {
+    for (StaticTarget staticTarget : staticTargets)
+    {
+      if (staticTarget.getStaticRenderable().collisionTestFast(ray))
+        return true;
+    }
+
+    return false;
+  }
 }

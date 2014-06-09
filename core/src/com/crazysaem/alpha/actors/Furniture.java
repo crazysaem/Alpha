@@ -22,7 +22,7 @@ public class Furniture extends StaticRenderable implements EventHandler
   @Override
   public void handleEvent(Event event)
   {
-    System.out.println("ARMCHAIR recieved: " + event.getAction());
+    System.out.println("ARMCHAIR recieved event: " + event.getAction());
   }
 
   @Override
