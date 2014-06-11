@@ -65,14 +65,45 @@ public class PathGraph
 
     nodes = new Node[xLength + 1][zLength + 1];
 
+    // LibGDX Coordinate System:
+    //
+    // FRONT VIEW:
+    //    ^y
+    //    |
+    //    |
+    //    +---->x
+    //   /
+    //  /
+    // vz
+    //
+    // TOP VIEW:
+    //
+    //    +---->x
+    //   /|
+    //  / |
+    // vy vz
+    //
+
+    float size = 1.0f;
+    float sizeHalf = size / 2;
+    float distance = (float) Math.sqrt(Math.sqrt(Math.pow(size, 2) + Math.pow(size / 2, 2)) + Math.pow(size, 2));
     for (int x = x0; x <= x1; x++)
     {
       for (int z = z0; z <= z1; z++)
       {
-        boolean check0 = collisionCheck(x - 0.9f, z - 0.9f, 0.9f, 0.9f);
-        boolean check1 = collisionCheck(x - 0.9f, z + 0.9f, 0.9f, -0.9f);
+        float xf = (float)x;
+        float zf = (float)z;
 
-        if (check0 && check1)
+        //Left -> TopRight
+        boolean check0 = collisionCheck(xf - sizeHalf, 0.0f, zf, xf + sizeHalf, size, zf - sizeHalf, distance);
+        //Top -> BottomRight
+        boolean check1 = collisionCheck(xf, 0.0f, zf - sizeHalf, xf + sizeHalf, size, zf + sizeHalf, distance);
+        //Right -> BottomLeft
+        boolean check2 = collisionCheck(xf + sizeHalf, 0.0f, zf, xf - sizeHalf, size, zf + sizeHalf, distance);
+        //Bottom -> TopLeft
+        boolean check3 = collisionCheck(xf, 0.0f, zf + sizeHalf, xf - sizeHalf, size, zf - sizeHalf, distance);
+
+        if (check0 && check1 && check2 && check3)
           setNode(new Node(), x, z);
       }
     }
@@ -87,82 +118,38 @@ public class PathGraph
         {
 
           leftFlag = x > xMin;
-          topFlag = z < zMax;
+          botFlag = z < zMax;
           rightFlag = x < xMax;
-          botFlag = z > zMin;
-
-          // LibGDX Coordinate System:
-          //
-          // FRONT VIEW:
-          //    ^y ^z
-          //    | /
-          //    |/
-          //    +---->x
-          //
-          // TOP VIEW:
-          //    ^z
-          //    |
-          //    |
-          //    +---->x
-          //   /
-          //  /
-          // v y
-          //
+          topFlag = z > zMin;
 
           if (leftFlag)
           {
-            //Check if a path to the node on the LEFT is available
-            if (collisionCheck(x, z, -1, 0))
-              node.L = getNode(x - 1, z);
+            node.L = getNode(x - 1, z);
 
             if (topFlag)
-            {
-              //Check if a path to the node on the TOP_LEFT is available
-              if (collisionCheck(x, z, -1, 1))
-                node.TL = getNode(x - 1, z + 1);
-            }
+              node.TL = getNode(x - 1, z - 1);
           }
 
           if (topFlag)
-          {
-            //Check if a path to the node on the TOP is available
-            if (collisionCheck(x, z, 0, 1))
-              node.T = getNode(x, z + 1);
-          }
+            node.T = getNode(x, z - 1);
 
           if (rightFlag)
           {
             if (topFlag)
-            {
-              //Check if a path to the node on the TOP_RIGHT is available
-              if (collisionCheck(x, z, 1, 1))
-                node.TR = getNode(x + 1, z + 1);
-            }
+              node.TR = getNode(x + 1, z - 1);
 
-            //Check if a path to the node on the RIGHT is available
-            if (collisionCheck(x, z, 1, 0))
-              node.R = getNode(x + 1, z);
+            node.R = getNode(x + 1, z);
           }
 
           if (botFlag)
           {
             if (rightFlag)
-            {
-              //Check if a path to the node on the BOT_RIGHT is available
-              if (collisionCheck(x, z, 1, -1))
-                node.BR = getNode(x + 1, z - 1);
-            }
+              node.BR = getNode(x + 1, z + 1);
 
-            //Check if a path to the node on the BOT is available
-            if (collisionCheck(x, z, 0, -1))
-              node.B = getNode(x, z - 1);
+            node.B = getNode(x, z + 1);
 
             if (leftFlag)
-            {
-              //Check if a path to the node on the BOT_LEFT is available
-              if (collisionCheck(x, z, -1, -1))
-                node.BL = getNode(x - 1, z - 1);
-            }
+              node.BL = getNode(x - 1, z + 1);
           }
         }
       }
@@ -179,17 +166,16 @@ public class PathGraph
     return nodes[xShift + x][zShift + z];
   }
 
-  private boolean collisionCheck(float posX, float posZ, float dirX, float dirZ)
+  private boolean collisionCheck(float p0x, float p0y, float p0z, float p1x, float p1y, float p1z, float distance)
   {
-    ray.origin.x = posX;
-    ray.origin.z = posZ;
-    ray.direction.x = dirX;
-    ray.direction.y = 0.0f;
-    ray.direction.z = dirZ;
+    ray.origin.x = p0x;
+    ray.origin.y = p0y;
+    ray.origin.z = p0z;
+    ray.direction.x = p1x - p0x;
+    ray.direction.y = p1y - p0y;
+    ray.direction.z = p1z - p0z;
     ray.direction.nor();
-    //TODO: Try to Check Line vs AABB instead of Ray vs AABB and then checking the distance.
-    //Could lead to a speed boost
-    return !staticTargetPool.collisonCheck(ray, 1.8f);
+    return !staticTargetPool.collisonCheck(ray, distance);
   }
 
   public void createDebugRenderGraphics()
@@ -201,27 +187,30 @@ public class PathGraph
 
     Vector3 v0 = new Vector3(0.0f, 0.5f, 0.0f);
     Model arrowModelL = modelBuilder.createArrow(v0, new Vector3(-0.8f, 0.5f, 0.0f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-    Model arrowModelTL = modelBuilder.createArrow(v0, new Vector3(-0.8f, 0.5f, 0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-    Model arrowModelT = modelBuilder.createArrow(v0, new Vector3(0.0f, 0.5f, 0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-    Model arrowModelTR = modelBuilder.createArrow(v0, new Vector3(0.8f, 0.5f, 0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelTL = modelBuilder.createArrow(v0, new Vector3(-0.8f, 0.5f, -0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelT = modelBuilder.createArrow(v0, new Vector3(0.0f, 0.5f, -0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelTR = modelBuilder.createArrow(v0, new Vector3(0.8f, 0.5f, -0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
     Model arrowModelR = modelBuilder.createArrow(v0, new Vector3(0.8f, 0.5f, 0.0f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-    Model arrowModelBR = modelBuilder.createArrow(v0, new Vector3(0.8f, 0.5f, -0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-    Model arrowModelB = modelBuilder.createArrow(v0, new Vector3(0.0f, 0.5f, -0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-    Model arrowModelBL = modelBuilder.createArrow(v0, new Vector3(-0.8f, 0.5f, -0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelBR = modelBuilder.createArrow(v0, new Vector3(0.8f, 0.5f, 0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelB = modelBuilder.createArrow(v0, new Vector3(0.0f, 0.5f, 0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    Model arrowModelBL = modelBuilder.createArrow(v0, new Vector3(-0.8f, 0.5f, 0.8f), new Material(), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
     ModelInstance arrow;
 
     for (int x = x0; x <= x1; x++)
     {
       for (int z = z0; z <= z1; z++)
       {
-        sphere = new ModelInstance(sphereModel);
-        sphere.transform.setToTranslation(x, 1.0f, z);
-        debugModelInstances.add(sphere);
-
         node = getNode(x, z);
 
-        if (node != null)
+        if (node != null)// && (x == 2 && z == -3))
         {
+          if (true)
+          {
+            sphere = new ModelInstance(sphereModel);
+            sphere.transform.setToTranslation(x, 1.0f, z);
+            debugModelInstances.add(sphere);
+          }
+
           if (node.L != null)
           {
             arrow = new ModelInstance(arrowModelL);
