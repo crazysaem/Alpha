@@ -91,8 +91,8 @@ public class PathGraph
     {
       for (int z = z0; z <= z1; z++)
       {
-        float xf = (float)x;
-        float zf = (float)z;
+        float xf = (float) x;
+        float zf = (float) z;
 
         //Left -> TopRight
         boolean check0 = collisionCheck(xf - sizeHalf, 0.0f, zf, xf + sizeHalf, size, zf - sizeHalf, distance);
@@ -123,34 +123,28 @@ public class PathGraph
           topFlag = z > zMin;
 
           if (leftFlag)
-          {
             node.L = getNode(x - 1, z);
-
-            if (topFlag)
-              node.TL = getNode(x - 1, z - 1);
-          }
 
           if (topFlag)
             node.T = getNode(x, z - 1);
 
           if (rightFlag)
-          {
-            if (topFlag)
-              node.TR = getNode(x + 1, z - 1);
-
             node.R = getNode(x + 1, z);
-          }
 
           if (botFlag)
-          {
-            if (rightFlag)
-              node.BR = getNode(x + 1, z + 1);
-
             node.B = getNode(x, z + 1);
 
-            if (leftFlag)
-              node.BL = getNode(x - 1, z + 1);
-          }
+          if (node.T != null && node.L != null)
+            node.TL = getNode(x - 1, z - 1);
+
+          if (node.T != null && node.R != null)
+            node.TR = getNode(x + 1, z - 1);
+
+          if (node.B != null && node.L != null)
+            node.BL = getNode(x - 1, z + 1);
+
+          if (node.B != null && node.R != null)
+            node.BR = getNode(x + 1, z + 1);
         }
       }
     }

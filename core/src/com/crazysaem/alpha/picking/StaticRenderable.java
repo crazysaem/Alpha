@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.crazysaem.alpha.graphics.Renderable;
 
+import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 /**
@@ -19,19 +20,15 @@ public abstract class StaticRenderable extends Renderable
   private float[] vertices;
   private short[] indices;
   private int vertexSize;
-  private Ray geometryRay = new Ray(new Vector3(), new Vector3());
   private Vector3 intersection = new Vector3();
 
   public float collisionTest(Ray ray)
   {
     if (Intersector.intersectRayBoundsFast(ray, boundingBox))
     {
-      //Because the raw geometry is still stored like the Blender coordinate system, we have to map the ray
-      //from the libGDX coordinate system to the Blender one.
-      geometryRay.set(ray.origin.x, -ray.origin.z, ray.origin.y, ray.direction.x, -ray.direction.z, ray.direction.y);
-      if (Intersector.intersectRayTriangles(geometryRay, vertices, indices, vertexSize, intersection))
+      if (Intersector.intersectRayTriangles(ray, vertices, indices, vertexSize, intersection))
       {
-        return Math.abs(geometryRay.origin.dst(intersection));
+        return Math.abs(ray.origin.dst(intersection));
       }
     }
 
@@ -42,23 +39,13 @@ public abstract class StaticRenderable extends Renderable
   {
     if (Intersector.intersectRayBoundsFast(ray, boundingBox))
     {
-      //Because the raw geometry is still stored like the Blender coordinate system, we have to map the ray
-      //from the libGDX coordinate system to the Blender one.
-      geometryRay.set(ray.origin.x, -ray.origin.z, ray.origin.y, ray.direction.x, -ray.direction.z, ray.direction.y);
-      if (Intersector.intersectRayTriangles(geometryRay, vertices, indices, vertexSize, intersection))
+      if (Intersector.intersectRayTriangles(ray, vertices, indices, vertexSize, intersection))
       {
-        float distanceTest =  Math.abs(geometryRay.origin.dst(intersection));
+        float distanceTest = Math.abs(ray.origin.dst(intersection));
         if (distance > distanceTest)
           return true;
       }
     }
-
-    /*
-    if (Intersector.intersectRayBounds(ray, boundingBox, intersection))
-    {
-      if (distance > Math.abs(ray.origin.dst(intersection)))
-        return true;
-    }*/
 
     return false;
   }
@@ -90,10 +77,33 @@ public abstract class StaticRenderable extends Renderable
     indicesBuffer.get(indices, 0, meshPart.numVertices);
     indicesBuffer.position(pos);
 
-    //TODO: Share vertices array between different static Renderables, because it is often the same
-    int numVertices = mesh.getNumVertices();
-    vertices = new float[numVertices * vertexSize];
-    mesh.getVertices(vertices);
+    int minIndex = indices[0];
+    int maxIndex = indices[indices.length - 1];
+    int numVertices = maxIndex - minIndex + 1;
+
+    FloatBuffer verticesBuffer = mesh.getVerticesBuffer();
+    pos = verticesBuffer.position();
+    verticesBuffer.position(0);
+    vertices = new float[numVertices * 3];
+    float[] vTemp = new float[3];
+
+    for (int i = 0; i < numVertices; i++)
+    {
+      verticesBuffer.position((minIndex + i) * vertexSize);
+      verticesBuffer.get(vTemp, 0, 3);
+      //Because the raw geometry is still stored in the Blender coordinate system, we have to map it to
+      //the libGDX coordinate by flipping y & z and negate y.
+      vertices[i * 3 + 0] = vTemp[0];
+      vertices[i * 3 + 1] = vTemp[2];
+      vertices[i * 3 + 2] = -vTemp[1];
+    }
+    verticesBuffer.position(pos);
+    vertexSize = 3;
+
+    for (int i = 0; i < indices.length; i++)
+    {
+      indices[i] -= minIndex;
+    }
   }
 
   @Override
