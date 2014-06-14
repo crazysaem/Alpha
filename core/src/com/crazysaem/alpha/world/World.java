@@ -103,16 +103,17 @@ public class World implements Disposable
     aStarGraph.recalculateGraph(-9, -9, 9, 9);
     aStarGraph.createDebugRenderGraphics();
     AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(aStarGraph);
-    /*System.out.println(aStarAlgorithm.calculatePath(-1, 1, 3, -3));
-    System.out.println(aStarAlgorithm.calculatePath(-1, 1, 2, -5));*/
+    System.out.println(aStarAlgorithm.calculatePath(0, 0, 3, -3));
+    System.out.println(aStarAlgorithm.calculatePath(0, 0, 2, -5));
     System.out.println(aStarAlgorithm.calculatePath(-5, 5, -9, 9));
-    /*System.out.println(aStarAlgorithm.calculatePath(-5, 5, -7, -7));
+    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -7, -7));
     System.out.println(aStarAlgorithm.calculatePath(-5, 5, -8, -8));
     System.out.println(aStarAlgorithm.calculatePath(-5, 5, -8, -8));
     System.out.println(aStarAlgorithm.calculatePath(-5, 5, -8, -8));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -8, -8));*/
+    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -8, -8));
     System.out.println(aStarAlgorithm.calculatePath(-5, 5, -9, 0));
-
+    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -9, 9));
+    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -9, 10));
 
     finishedLoading = true;
   }

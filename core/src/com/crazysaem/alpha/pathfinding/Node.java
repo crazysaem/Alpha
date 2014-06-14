@@ -15,6 +15,13 @@ public class Node
       L, R,
       BL, B, BR;
 
+  //Used for scoring:
+  public Node parent;
+
+  public int g;
+  public int h;
+  public int f;
+
   protected Node() {}
 
   public Node(int x, int z)
