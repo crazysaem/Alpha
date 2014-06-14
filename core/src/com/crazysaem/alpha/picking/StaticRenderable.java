@@ -50,14 +50,13 @@ public abstract class StaticRenderable extends Renderable
     return false;
   }
 
-  public boolean collisionTestFast(Ray ray)
+  /**
+   * Returns the intersection point of the last collisionTest
+   * @return Vector3 intersection
+   */
+  public Vector3 getLastIntersection()
   {
-    if (Intersector.intersectRayBoundsFast(ray, boundingBox))
-    {
-      return true;
-    }
-
-    return false;
+    return intersection;
   }
 
   @Override

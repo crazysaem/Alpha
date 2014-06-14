@@ -1,6 +1,5 @@
-package com.crazysaem.alpha.actors;
+package com.crazysaem.alpha.actors.protagonist;
 
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.crazysaem.alpha.events.Event;
 import com.crazysaem.alpha.events.EventHandler;
 import com.crazysaem.alpha.graphics.Renderable;
@@ -8,7 +7,7 @@ import com.crazysaem.alpha.graphics.Renderable;
 /**
  * Created by crazysaem on 23.05.2014.
  */
-public class Pet extends Renderable implements EventHandler
+public class Elephant extends Renderable implements EventHandler
 {
   private static final String IDLE = "idle";
   private static final String WALK = "walk";

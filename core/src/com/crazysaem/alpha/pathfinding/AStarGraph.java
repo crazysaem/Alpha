@@ -16,21 +16,8 @@ import java.util.List;
 /**
  * Created by crazysaem on 09.06.2014.
  */
-public class PathGraph
+public class AStarGraph
 {
-  class Node
-  {
-    //Position
-    //public int x;
-    //public int z;
-
-    //Connection to other Nodes
-    public Node
-        TL, T, TR,
-        L, R,
-        BL, B, BR;
-  }
-
   private StaticTargetPool staticTargetPool;
   private Node[][] nodes;
   private Ray ray;
@@ -39,7 +26,7 @@ public class PathGraph
   private List<ModelInstance> debugModelInstances = new ArrayList<ModelInstance>();
   ;
 
-  public PathGraph(StaticTargetPool staticTargetPool)
+  public AStarGraph(StaticTargetPool staticTargetPool)
   {
     this.staticTargetPool = staticTargetPool;
     ray = new Ray(new Vector3(0.0f, 0.5f, 0.0f), new Vector3(0.0f, 0.0f, 0.0f));
@@ -104,7 +91,7 @@ public class PathGraph
         boolean check3 = collisionCheck(xf, 0.0f, zf + sizeHalf, xf - sizeHalf, size, zf - sizeHalf, distance);
 
         if (check0 && check1 && check2 && check3)
-          setNode(new Node(), x, z);
+          setNode(new Node(x, z), x, z);
       }
     }
 
@@ -155,7 +142,7 @@ public class PathGraph
     nodes[xShift + x][zShift + z] = node;
   }
 
-  private Node getNode(int x, int z)
+  public Node getNode(int x, int z)
   {
     return nodes[xShift + x][zShift + z];
   }

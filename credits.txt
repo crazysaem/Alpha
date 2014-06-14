@@ -1,0 +1,20 @@
+Textures from:
+http://cgtextures.com/
+http://www.tutorialsforblender3d.com/Textures/Skys/Sky_Dome_1.html
+
+Tools used:
+http://www.blender.org/
+http://www.jetbrains.com/idea/
+
+Third party libraries:
+http://libgdx.badlogicgames.com/
+http://developer.android.com/sdk/index.html
+https://code.google.com/p/google-web-toolkit/
+
+Inspired by:
+	Modeling:
+	http://cgcookie.com/blender/cgc-courses/create-a-cute-little-elephant-character/
+
+	Algorithms:
+	http://www.policyalmanac.org/games/aStarTutorial.htm
+	http://web.mit.edu/eranki/www/tutorials/search/

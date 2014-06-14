@@ -6,14 +6,19 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Disposable;
-import com.crazysaem.alpha.actors.*;
+import com.crazysaem.alpha.actors.food.Carrot;
+import com.crazysaem.alpha.actors.furniture.ArmChair;
+import com.crazysaem.alpha.actors.house.House;
+import com.crazysaem.alpha.actors.outside.Outside;
+import com.crazysaem.alpha.actors.protagonist.Elephant;
 import com.crazysaem.alpha.events.EventManager;
 import com.crazysaem.alpha.events.EventTarget;
 import com.crazysaem.alpha.graphics.CameraInputControllerExt;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.hud.HUD;
-import com.crazysaem.alpha.pathfinding.PathGraph;
+import com.crazysaem.alpha.pathfinding.AStarAlgorithm;
+import com.crazysaem.alpha.pathfinding.AStarGraph;
 import com.crazysaem.alpha.picking.RayPicking;
 import com.crazysaem.alpha.picking.StaticTarget;
 import com.crazysaem.alpha.picking.StaticTargetPool;
@@ -32,7 +37,7 @@ public class World implements Disposable
   private EventManager eventManager;
   private HUD hud;
   private List<Renderable> renderables;
-  private PathGraph pathGraph;
+  private AStarGraph aStarGraph;
   private boolean finishedLoading;
 
   public World()
@@ -55,36 +60,39 @@ public class World implements Disposable
     eventManager = new EventManager();
     hud = new HUD(eventManager);
 
-    Pet pet = new Pet();
+    Elephant elephant = new Elephant();
     Carrot carrot = new Carrot();
-    Furniture furniture = new Furniture();
+    ArmChair armChair = new ArmChair();
     House house = new House();
     Outside outside = new Outside();
 
-    eventManager.registerEventHandler(EventTarget.PET, pet);
+    eventManager.registerEventHandler(EventTarget.PET, elephant);
     eventManager.registerEventHandler(EventTarget.CARROT, carrot);
-    eventManager.registerEventHandler(EventTarget.ARMCHAIR, furniture);
+    eventManager.registerEventHandler(EventTarget.ARMCHAIR, armChair);
     eventManager.registerEventHandler(EventTarget.HOUSE, house);
     eventManager.registerEventHandler(EventTarget.GROUND, outside);
 
-    renderables.add(pet);
+    renderables.add(elephant);
     renderables.add(carrot);
-    renderables.add(furniture);
+    renderables.add(armChair);
     renderables.add(outside);
     renderables.add(house);
 
-    StaticTargetPool staticTargetPool = new StaticTargetPool();
-    staticTargetPool.add(new StaticTarget(house.houseParts.get(0), EventTarget.HOUSE));
-    staticTargetPool.add(new StaticTarget(house.houseParts.get(1), EventTarget.HOUSE));
-    staticTargetPool.add(new StaticTarget(house.houseParts.get(2), EventTarget.HOUSE));
-    staticTargetPool.add(new StaticTarget(furniture, EventTarget.ARMCHAIR));
-    staticTargetPool.add(new StaticTarget(outside, EventTarget.GROUND));
+    StaticTargetPool staticTargetPoolGraph = new StaticTargetPool();
+    staticTargetPoolGraph.add(new StaticTarget(house.houseParts.get(1), EventTarget.HOUSE));
+    staticTargetPoolGraph.add(new StaticTarget(house.houseParts.get(2), EventTarget.HOUSE));
+    staticTargetPoolGraph.add(new StaticTarget(armChair, EventTarget.ARMCHAIR));
+    aStarGraph = new AStarGraph(staticTargetPoolGraph);
 
-    pathGraph = new PathGraph(staticTargetPool);
+    StaticTargetPool staticTargetPoolInteraction = new StaticTargetPool();
+    staticTargetPoolInteraction.add(new StaticTarget(house.houseParts.get(1), EventTarget.HOUSE));
+    staticTargetPoolInteraction.add(new StaticTarget(house.houseParts.get(2), EventTarget.HOUSE));
+    staticTargetPoolInteraction.add(new StaticTarget(armChair, EventTarget.ARMCHAIR));
+    staticTargetPoolInteraction.add(new StaticTarget(outside, EventTarget.GROUND));
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
-    inputMultiplexer.addProcessor(new RayPicking(cam, eventManager, staticTargetPool));
+    inputMultiplexer.addProcessor(new RayPicking(cam, eventManager, staticTargetPoolInteraction));
     inputMultiplexer.addProcessor(camController);
     Gdx.input.setInputProcessor(inputMultiplexer);
   }
@@ -92,8 +100,11 @@ public class World implements Disposable
   private void finishedLoading()
   {
     //All Models have been initialized
-    pathGraph.recalculateGraph(-9, -9, 9, 9);
-    pathGraph.createDebugRenderGraphics();
+    aStarGraph.recalculateGraph(-9, -9, 9, 9);
+    aStarGraph.createDebugRenderGraphics();
+    AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(aStarGraph);
+    System.out.println(aStarAlgorithm.calculatePath(0, 0, 2, -5));
+    System.out.println(aStarAlgorithm.calculatePath(0, 0, 2, -100));
 
     finishedLoading = true;
   }
@@ -129,7 +140,7 @@ public class World implements Disposable
       //TODO: This seems to be a bug of libgdx, find proper way to do this
       renderBatch.flush();
     }
-    pathGraph.debugRender(renderBatch);
+    aStarGraph.debugRender(renderBatch);
     renderBatch.end();
     hud.render();
   }

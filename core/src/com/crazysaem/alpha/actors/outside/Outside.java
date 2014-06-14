@@ -1,4 +1,4 @@
-package com.crazysaem.alpha.actors;
+package com.crazysaem.alpha.actors.outside;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.crazysaem.alpha.events.Event;
 import com.crazysaem.alpha.events.EventHandler;
+import com.crazysaem.alpha.events.HitEvent;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.picking.StaticRenderable;
@@ -64,7 +65,15 @@ public class Outside extends StaticRenderable implements EventHandler
   @Override
   public void handleEvent(Event event)
   {
-    System.out.println("Ground recieved event: " + event.getAction());
+    if (event instanceof HitEvent)
+    {
+      HitEvent hitEvent = (HitEvent) event;
+      System.out.println("Ground recieved hit event: " + hitEvent.getHitPos().toString());
+    }
+    else
+    {
+      System.out.println("Ground recieved unknown event: " + event.getAction());
+    }
   }
 
   class Sky extends Renderable

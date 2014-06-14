@@ -3,10 +3,7 @@ package com.crazysaem.alpha.picking;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.collision.Ray;
-import com.crazysaem.alpha.events.Event;
-import com.crazysaem.alpha.events.EventHandler;
-import com.crazysaem.alpha.events.EventManager;
-import com.crazysaem.alpha.events.EventTarget;
+import com.crazysaem.alpha.events.*;
 
 /**
  * Created by crazysaem on 07.06.2014.
@@ -60,7 +57,7 @@ public class RayPicking implements InputProcessor
       EventTarget eventTarget = staticTargetPool.collisonCheck(ray);
       if (eventTarget != null)
       {
-        eventManager.addEvent(new Event(eventTarget, "HIT"));
+        eventManager.addEvent(new HitEvent(eventTarget, "TAP", staticTargetPool.getLastIntersection()));
       }
     }
     return false;

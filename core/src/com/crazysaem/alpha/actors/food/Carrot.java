@@ -1,4 +1,4 @@
-package com.crazysaem.alpha.actors;
+package com.crazysaem.alpha.actors.food;
 
 import com.crazysaem.alpha.events.Event;
 import com.crazysaem.alpha.events.EventHandler;

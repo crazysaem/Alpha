@@ -1,4 +1,4 @@
-package com.crazysaem.alpha.actors;
+package com.crazysaem.alpha.actors.house;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
