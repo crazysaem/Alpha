@@ -1,7 +1,6 @@
 package com.crazysaem.alpha.pathfinding;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by crazysaem on 14.06.2014.
@@ -9,21 +8,37 @@ import java.util.List;
 public class AStarAlgorithm
 {
   private AStarGraph aStarGraph;
-  private List<ScoredNode> closedList;
-  private List<ScoredNode> openList;
+  private TreeSet<ScoredNode> closedList;
+  private TreeSet<ScoredNode> openList;
 
   private int goalX;
   private int goalZ;
 
+  public class ScoredNodeComparator implements Comparator<ScoredNode>
+  {
+    @Override
+    public int compare(ScoredNode n1, ScoredNode n2) {
+      if(n1.getScore() > n2.getScore())
+        return 1;
+      else
+        if(n1.getScore() < n2.getScore()) return -1;
+      else
+        return 0;
+    }
+  }
+
   public AStarAlgorithm(AStarGraph aStarGraph)
   {
     this.aStarGraph = aStarGraph;
-    closedList = new ArrayList<ScoredNode>();
-    openList = new ArrayList<ScoredNode>();
+    closedList = new TreeSet<ScoredNode>(new ScoredNodeComparator());
+    openList = new TreeSet<ScoredNode>(new ScoredNodeComparator());
   }
 
   public boolean calculatePath(int startX, int startZ, int goalX, int goalZ)
   {
+    openList.clear();
+    closedList.clear();
+
     this.goalX = goalX;
     this.goalZ = goalZ;
 
@@ -35,6 +50,7 @@ public class AStarAlgorithm
     {
       ScoredNode q = getNodeWithLowestFScoreFromOpenList();
       openList.remove(q);
+      closedList.add(q);
       List<ScoredNode> adjacentNodes = getAdjacentNodes(q);
       for (ScoredNode successor : adjacentNodes)
       {
@@ -46,9 +62,10 @@ public class AStarAlgorithm
         boolean openFlag = isNodeWithLowerFScoreFromOpenListAvaivable(successor);
         boolean closedFlag = isNodeWithLowerFScoreFromClosedListAvaivable(successor);
         if (!openFlag && ! closedFlag)
+        {
           openList.add(successor);
+        }
       }
-      closedList.add(q);
     }
 
     return false;
@@ -72,6 +89,11 @@ public class AStarAlgorithm
 
   public ScoredNode getNodeWithLowestFScoreFromOpenList()
   {
+    /*if (openList.size() > 0)
+      return openList.first();
+
+    return null;*/
+
     ScoredNode retNode = null;
     int minF = Integer.MAX_VALUE;
 
@@ -89,8 +111,11 @@ public class AStarAlgorithm
 
   public boolean isNodeWithLowerFScoreFromOpenListAvaivable(ScoredNode node)
   {
-    for(ScoredNode n : openList)
+    for (ScoredNode n : openList)
     {
+      //if (n.getScore() > node.getScore())
+      //  return false;
+
       if (n.x == node.x && n.z == node.z && n.getScore() < node.getScore())
         return true;
     }
@@ -100,8 +125,11 @@ public class AStarAlgorithm
 
   public boolean isNodeWithLowerFScoreFromClosedListAvaivable(ScoredNode node)
   {
-    for(ScoredNode n : closedList)
+    for (ScoredNode n : closedList)
     {
+      //if (n.getScore() > node.getScore())
+      //  return false;
+
       if (n.x == node.x && n.z == node.z && n.getScore() < node.getScore())
         return true;
     }
