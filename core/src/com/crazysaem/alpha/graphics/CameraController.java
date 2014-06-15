@@ -7,15 +7,15 @@ import com.badlogic.gdx.math.Vector3;
 /**
  * Created by crazysaem on 08.06.2014.
  */
-public class CameraInputControllerExt extends CameraInputController
+public class CameraController extends CameraInputController
 {
   private final Vector3 tmpV = new Vector3();
 
   private Vector3 position = new Vector3();
-  private  Vector3 direction = new Vector3();
+  private Vector3 direction = new Vector3();
   private Vector3 up = new Vector3();
 
-  public CameraInputControllerExt(Camera camera)
+  public CameraController(Camera camera)
   {
     super(camera);
   }

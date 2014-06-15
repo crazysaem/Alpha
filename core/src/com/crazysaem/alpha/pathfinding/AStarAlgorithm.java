@@ -11,16 +11,16 @@ public class AStarAlgorithm implements EventHandler
 {
   private AStarGraph aStarGraph;
   private EventManager eventManager;
-  private StartPosition startPosition;
+  private Position position;
   private HashMap<Node, Node> closedList;
   private HashMap<Node, Node> openList;
   private TreeSet<Node> openListFSorted;
 
-  public AStarAlgorithm(AStarGraph aStarGraph, EventManager eventManager, StartPosition startPosition)
+  public AStarAlgorithm(AStarGraph aStarGraph, EventManager eventManager, Position position)
   {
     this.aStarGraph = aStarGraph;
     this.eventManager = eventManager;
-    this.startPosition = startPosition;
+    this.position = position;
 
     closedList = new HashMap<Node, Node>();
     openList = new HashMap<Node, Node>();
@@ -41,7 +41,7 @@ public class AStarAlgorithm implements EventHandler
           //TODO: get closest Node position for given hitPosition
           int goalX = (int) hitEvent.getHitPos().x;
           int goalZ = (int) hitEvent.getHitPos().z;
-          Path path = calculatePath(startPosition.getX(), startPosition.getZ(), goalX, goalZ);
+          Path path = calculatePath((int) position.getX(), (int) position.getZ(), goalX, goalZ);
           if (path != null)
             eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "MOVE", path));
           break;

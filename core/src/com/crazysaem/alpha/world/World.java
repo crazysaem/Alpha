@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.crazysaem.alpha.actors.food.Carrot;
 import com.crazysaem.alpha.actors.furniture.ArmChair;
@@ -15,7 +16,7 @@ import com.crazysaem.alpha.actors.outside.Sky;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
 import com.crazysaem.alpha.events.EventManager;
 import com.crazysaem.alpha.events.EventTarget;
-import com.crazysaem.alpha.graphics.CameraInputControllerExt;
+import com.crazysaem.alpha.graphics.CameraController;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.hud.HUD;
@@ -34,13 +35,14 @@ import java.util.List;
 public class World implements Disposable
 {
   private PerspectiveCamera cam;
-  private CameraInputController camController;
+  private CameraController camController;
   private RenderBatch renderBatch;
   private EventManager eventManager;
   private HUD hud;
   private List<Renderable> renderables;
   private AStarGraph aStarGraph;
   private boolean finishedLoading;
+  private Elephant elephant;
 
   public World()
   {
@@ -48,13 +50,30 @@ public class World implements Disposable
     Gdx.gl.glClearColor(70f / 256f, 94f / 256f, 140f / 256f, 1.0f);
 
     cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    //Place camera a little higher
-    cam.position.set(0f, 1.12f, 8f);
-    cam.lookAt(0, 1.12f, 0);
-    cam.near = 1f;
-    cam.far = 300f;
+    //Place camera
+    cam.position.set(0.0f, 1.12f, 8.0f);
+    cam.lookAt(0.0f, 1.12f, 0.0f);
+    cam.near = 1.0f;
+    cam.far = 300.0f;
     cam.update();
-    camController = new CameraInputControllerExt(cam);
+    camController = new CameraController(cam);
+    camController.target.y = 1.12f;
+    /*
+    Vector3 target = new Vector3(-6f, 1.12f, 0.0f);
+    Vector3 right = new Vector3().set(cam.direction).crs(cam.up).nor();
+
+    // This angles usualy comes from touchDragged event in your input processor
+    // class implementing the InputProcessor, where you do your calculations
+    float deltaAngleX = -45f;
+    float deltaAngleY = 45.0f;
+
+    // Rotate around X axis
+    cam.rotateAround(target, right, deltaAngleX);
+
+    // Rotate around Y
+    //cam.rotate(Vector3.Y, deltaAngleY);
+    cam.rotateAround(target, Vector3.Y, deltaAngleY);
+    cam.update();*/
 
     renderBatch = new RenderBatch();
     renderables = new ArrayList<Renderable>();
@@ -68,7 +87,7 @@ public class World implements Disposable
     Sky sky = new Sky();
     Ground ground = new Ground();
     Shelf shelf = new Shelf();
-    Elephant elephant = new Elephant();
+    elephant = new Elephant();
 
     eventManager.registerEventHandler(EventTarget.NONE, null);
     eventManager.registerEventHandler(EventTarget.ELEPHANT, elephant);
@@ -114,7 +133,7 @@ public class World implements Disposable
 
   private void finishedLoading()
   {
-    //All Models have been initialized
+    //All Models have been initialized here
     aStarGraph.recalculateGraph(-9, -9, 9, 9);
     //aStarGraph.createDebugRenderGraphics();
 
@@ -136,6 +155,19 @@ public class World implements Disposable
           return;
 
       finishedLoading();
+    }
+
+    if (elephant.isMoving())
+    {
+      //cam.translate();
+      cam.lookAt(elephant.getX(), 1.12f, elephant.getZ());
+      cam.up.x = 0.0f;
+      cam.up.y = 1.0f;
+      cam.up.z = 0.0f;
+      cam.translate(elephant.getDeltaX(), 0.0f, elephant.getDeltaZ());
+      cam.update();
+      camController.target.x = elephant.getX();
+      camController.target.z = elephant.getZ();
     }
   }
 

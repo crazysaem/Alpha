@@ -5,19 +5,19 @@ import com.crazysaem.alpha.events.Event;
 import com.crazysaem.alpha.events.EventHandler;
 import com.crazysaem.alpha.events.MoveEvent;
 import com.crazysaem.alpha.graphics.Renderable;
+import com.crazysaem.alpha.pathfinding.Position;
 import com.crazysaem.alpha.pathfinding.PositionPerTime;
-import com.crazysaem.alpha.pathfinding.StartPosition;
 
 /**
  * Created by crazysaem on 23.05.2014.
  */
-public class Elephant extends Renderable implements EventHandler, StartPosition
+public class Elephant extends Renderable implements EventHandler, Position
 {
   private static final String IDLE = "idle";
   private static final String WALK = "walk";
   private static final String CARROT = "carrot";
 
-  private Vector3 position, initialDirection, direction, upVector;
+  private Vector3 position, deltaPosition, initialDirection, direction, upVector;
   private PositionPerTime positionPerTime;
   private Vector3 movePosition;
   private float time;
@@ -30,6 +30,7 @@ public class Elephant extends Renderable implements EventHandler, StartPosition
 
     animationController.setAnimation(IDLE, -1);
     position = new Vector3();
+    deltaPosition = new Vector3();
     initialDirection = new Vector3(0.0f, 0.0f, 1.0f);
     direction = new Vector3(0.0f, 0.0f, 1.0f);
     upVector = new Vector3(0.0f, 1.0f, 0.0f);
@@ -47,11 +48,16 @@ public class Elephant extends Renderable implements EventHandler, StartPosition
       if (positionPerTime.getPosition(2.0f, time, movePosition))
       {
         isMoving = false;
+        deltaPosition.x = 0.0f;
+        deltaPosition.y = 0.0f;
+        deltaPosition.z = 0.0f;
         animationController.setAnimation(IDLE, -1);
       }
 
       direction.x = movePosition.x - position.x;
       direction.z = movePosition.z - position.z;
+      deltaPosition.x = direction.x;
+      deltaPosition.z = direction.z;
       direction = direction.nor();
 
       directionAngle = (float) Math.acos((double) initialDirection.dot(direction)) * 57.3f;
@@ -104,13 +110,30 @@ public class Elephant extends Renderable implements EventHandler, StartPosition
     }
   }
 
-  public int getX()
+  public boolean isMoving()
   {
-    return (int) position.x;
+    return isMoving;
   }
 
-  public int getZ()
+  public float getX()
   {
-    return (int) position.z;
+    return position.x;
+  }
+
+  public float getZ()
+  {
+    return position.z;
+  }
+
+  @Override
+  public float getDeltaX()
+  {
+    return deltaPosition.x;
+  }
+
+  @Override
+  public float getDeltaZ()
+  {
+    return deltaPosition.z;
   }
 }
