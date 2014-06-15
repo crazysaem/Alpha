@@ -52,7 +52,7 @@ public class HUD implements Disposable
       public void changed(ChangeEvent event, Actor actor)
       {
         System.out.println("Telling the Pet to run");
-        eventManager.addEvent(new Event(EventTarget.PET, "walk"));
+        eventManager.addEvent(new Event(EventTarget.ELEPHANT, "walk"));
         eventManager.addEvent(new Event(EventTarget.CARROT, "idle"));
       }
     });
@@ -65,7 +65,7 @@ public class HUD implements Disposable
       public void changed(ChangeEvent event, Actor actor)
       {
         System.out.println("Telling the Pet to eat a carrot");
-        eventManager.addEvent(new Event(EventTarget.PET, "carrot"));
+        eventManager.addEvent(new Event(EventTarget.ELEPHANT, "carrot"));
         eventManager.addEvent(new Event(EventTarget.CARROT, "carrot"));
       }
     });

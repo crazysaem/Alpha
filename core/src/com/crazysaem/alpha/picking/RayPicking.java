@@ -13,13 +13,15 @@ public class RayPicking implements InputProcessor
   private int touchDownX, touchDownY;
   private Camera cam;
   private EventManager eventManager;
-  private StaticTargetPool staticTargetPool;
+  private StaticTargetPool staticTargetPoolInteraction;
+  private StaticTargetPool staticTargetPoolObfuscation;
 
-  public RayPicking(Camera cam, EventManager eventManager, StaticTargetPool staticTargetPool)
+  public RayPicking(Camera cam, EventManager eventManager, StaticTargetPool staticTargetPoolInteraction, StaticTargetPool staticTargetPoolObfuscation)
   {
     this.cam = cam;
     this.eventManager = eventManager;
-    this.staticTargetPool = staticTargetPool;
+    this.staticTargetPoolInteraction = staticTargetPoolInteraction;
+    this.staticTargetPoolObfuscation = staticTargetPoolObfuscation;
   }
 
   @Override
@@ -54,10 +56,13 @@ public class RayPicking implements InputProcessor
     if (touchDownX == screenX && touchDownY == screenY)
     {
       Ray ray = cam.getPickRay(screenX, screenY);
-      EventTarget eventTarget = staticTargetPool.collisonCheck(ray);
+      EventTarget eventTarget = staticTargetPoolInteraction.collisonCheck(ray);
       if (eventTarget != null)
       {
-        eventManager.addEvent(new HitEvent(eventTarget, "TAP", staticTargetPool.getLastIntersection()));
+        if (eventTarget == EventTarget.ASTAR_GROUND && staticTargetPoolObfuscation.collisonCheck(ray) != null)
+          return false;
+
+        eventManager.addEvent(new HitEvent(eventTarget, "TAP", staticTargetPoolInteraction.getLastIntersection()));
       }
     }
     return false;

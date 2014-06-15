@@ -5,7 +5,11 @@ package com.crazysaem.alpha.events;
  */
 public enum EventTarget
 {
-  PET,
+  ASTAR_GROUND,
+  ASTAR_FLOOR,
+  ASTAR_ARMCHAIR,
+
+  ELEPHANT,
   CARROT,
   HOUSE,
   SHELF,

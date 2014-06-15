@@ -24,7 +24,6 @@ public class AStarGraph
   private int xShift, zShift;
   private int x0, z0, x1, z1;
   private List<ModelInstance> debugModelInstances = new ArrayList<ModelInstance>();
-  ;
 
   public AStarGraph(StaticTargetPool staticTargetPool)
   {

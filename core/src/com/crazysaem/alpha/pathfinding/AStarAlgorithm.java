@@ -1,16 +1,53 @@
 package com.crazysaem.alpha.pathfinding;
 
+import com.crazysaem.alpha.events.*;
+
 import java.util.*;
 
 /**
  * Created by crazysaem on 14.06.2014.
  */
-public class AStarAlgorithm
+public class AStarAlgorithm implements EventHandler
 {
   private AStarGraph aStarGraph;
+  private EventManager eventManager;
+  private StartPosition startPosition;
   private HashMap<Node, Node> closedList;
   private HashMap<Node, Node> openList;
   private TreeSet<Node> openListFSorted;
+
+  public AStarAlgorithm(AStarGraph aStarGraph, EventManager eventManager, StartPosition startPosition)
+  {
+    this.aStarGraph = aStarGraph;
+    this.eventManager = eventManager;
+    this.startPosition = startPosition;
+
+    closedList = new HashMap<Node, Node>();
+    openList = new HashMap<Node, Node>();
+    openListFSorted = new TreeSet<Node>(new NodeScoreComparator());
+  }
+
+  @Override
+  public void handleEvent(Event event)
+  {
+    if (event instanceof HitEvent)
+    {
+      HitEvent hitEvent = (HitEvent) event;
+
+      switch (hitEvent.getEventTarget())
+      {
+        case ASTAR_GROUND:
+        case ASTAR_FLOOR:
+          //TODO: get closest Node position for given hitPosition
+          int goalX = (int) hitEvent.getHitPos().x;
+          int goalZ = (int) hitEvent.getHitPos().z;
+          Path path = calculatePath(startPosition.getX(), startPosition.getZ(), goalX, goalZ);
+          if (path != null)
+            eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "MOVE", path));
+          break;
+      }
+    }
+  }
 
   public class NodeScoreComparator implements Comparator<Node>
   {
@@ -34,22 +71,18 @@ public class AStarAlgorithm
     }
   }
 
-  public AStarAlgorithm(AStarGraph aStarGraph)
+  public Path calculatePath(int startX, int startZ, int goalX, int goalZ)
   {
-    this.aStarGraph = aStarGraph;
-    closedList = new HashMap<Node, Node>();
-    openList = new HashMap<Node, Node>();
-    openListFSorted = new TreeSet<Node>(new NodeScoreComparator());
-  }
+    if (startX == goalX && startZ == goalZ)
+      return null;
 
-  public boolean calculatePath(int startX, int startZ, int goalX, int goalZ)
-  {
     openList.clear();
     openListFSorted.clear();
     closedList.clear();
 
     //Get starting Node:
     Node startingNode = aStarGraph.getNode(startX, startZ);
+    startingNode.parent = null;
     startingNode.f = 0;
     openList.put(startingNode, startingNode);
     openListFSorted.add(startingNode);
@@ -67,7 +100,7 @@ public class AStarAlgorithm
         {
           //We found the goal node! Now calculate the path via the parents.
           successor.parent = q;
-          return true;
+          return new Path(successor);
         }
 
         if (!closedList.containsKey(successor))
@@ -80,7 +113,7 @@ public class AStarAlgorithm
 
           if (openList.containsKey(successor))
           {
-            //Check if the path from successor to q is shorter than the current path to q
+            //Check if the path to the successor through q is shorter
             if ((q.g + g) < successor.g)
             {
               successor.parent = q;
@@ -104,7 +137,7 @@ public class AStarAlgorithm
     }
 
     //No route was found
-    return false;
+    return null;
   }
 
   public List<Node> getAdjacentNodes(Node node)

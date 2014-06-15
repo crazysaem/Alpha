@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Disposable;
 import com.crazysaem.alpha.actors.food.Carrot;
 import com.crazysaem.alpha.actors.furniture.ArmChair;
+import com.crazysaem.alpha.actors.furniture.Shelf;
 import com.crazysaem.alpha.actors.house.House;
-import com.crazysaem.alpha.actors.outside.Outside;
+import com.crazysaem.alpha.actors.outside.Ground;
+import com.crazysaem.alpha.actors.outside.Sky;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
 import com.crazysaem.alpha.events.EventManager;
 import com.crazysaem.alpha.events.EventTarget;
@@ -60,39 +62,52 @@ public class World implements Disposable
     eventManager = new EventManager();
     hud = new HUD(eventManager);
 
-    Elephant elephant = new Elephant();
     Carrot carrot = new Carrot();
     ArmChair armChair = new ArmChair();
     House house = new House();
-    Outside outside = new Outside();
+    Sky sky = new Sky();
+    Ground ground = new Ground();
+    Shelf shelf = new Shelf();
+    Elephant elephant = new Elephant();
 
-    eventManager.registerEventHandler(EventTarget.PET, elephant);
+    eventManager.registerEventHandler(EventTarget.NONE, null);
+    eventManager.registerEventHandler(EventTarget.ELEPHANT, elephant);
     eventManager.registerEventHandler(EventTarget.CARROT, carrot);
     eventManager.registerEventHandler(EventTarget.ARMCHAIR, armChair);
     eventManager.registerEventHandler(EventTarget.HOUSE, house);
-    eventManager.registerEventHandler(EventTarget.GROUND, outside);
+    eventManager.registerEventHandler(EventTarget.GROUND, ground);
 
     renderables.add(elephant);
     renderables.add(carrot);
     renderables.add(armChair);
-    renderables.add(outside);
+    renderables.add(sky);
+    renderables.add(ground);
     renderables.add(house);
+    renderables.add(shelf);
 
     StaticTargetPool staticTargetPoolGraph = new StaticTargetPool();
     staticTargetPoolGraph.add(new StaticTarget(house.houseParts.get(1), EventTarget.HOUSE));
     staticTargetPoolGraph.add(new StaticTarget(house.houseParts.get(2), EventTarget.HOUSE));
     staticTargetPoolGraph.add(new StaticTarget(armChair, EventTarget.ARMCHAIR));
+
     aStarGraph = new AStarGraph(staticTargetPoolGraph);
+    AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(aStarGraph, eventManager, elephant);
+    eventManager.registerEventHandler(EventTarget.ASTAR_GROUND, aStarAlgorithm);
+    eventManager.registerEventHandler(EventTarget.ASTAR_FLOOR, aStarAlgorithm);
+    eventManager.registerEventHandler(EventTarget.ASTAR_ARMCHAIR, aStarAlgorithm);
 
     StaticTargetPool staticTargetPoolInteraction = new StaticTargetPool();
-    staticTargetPoolInteraction.add(new StaticTarget(house.houseParts.get(1), EventTarget.HOUSE));
-    staticTargetPoolInteraction.add(new StaticTarget(house.houseParts.get(2), EventTarget.HOUSE));
-    staticTargetPoolInteraction.add(new StaticTarget(armChair, EventTarget.ARMCHAIR));
-    staticTargetPoolInteraction.add(new StaticTarget(outside, EventTarget.GROUND));
+    staticTargetPoolInteraction.add(new StaticTarget(ground, EventTarget.ASTAR_GROUND));
+    staticTargetPoolInteraction.add(new StaticTarget(house.houseParts.get(0), EventTarget.ASTAR_FLOOR));
+    staticTargetPoolInteraction.add(new StaticTarget(armChair, EventTarget.ASTAR_ARMCHAIR));
+
+    StaticTargetPool staticTargetPoolObfuscation = new StaticTargetPool();
+    staticTargetPoolObfuscation.add(new StaticTarget(house.houseParts.get(1), EventTarget.NONE));
+    staticTargetPoolObfuscation.add(new StaticTarget(house.houseParts.get(2), EventTarget.NONE));
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
-    inputMultiplexer.addProcessor(new RayPicking(cam, eventManager, staticTargetPoolInteraction));
+    inputMultiplexer.addProcessor(new RayPicking(cam, eventManager, staticTargetPoolInteraction, staticTargetPoolObfuscation));
     inputMultiplexer.addProcessor(camController);
     Gdx.input.setInputProcessor(inputMultiplexer);
   }
@@ -101,19 +116,7 @@ public class World implements Disposable
   {
     //All Models have been initialized
     aStarGraph.recalculateGraph(-9, -9, 9, 9);
-    aStarGraph.createDebugRenderGraphics();
-    AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(aStarGraph);
-    System.out.println(aStarAlgorithm.calculatePath(0, 0, 3, -3));
-    System.out.println(aStarAlgorithm.calculatePath(0, 0, 2, -5));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -9, 9));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -7, -7));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -8, -8));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -8, -8));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -8, -8));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -8, -8));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -9, 0));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -9, 9));
-    System.out.println(aStarAlgorithm.calculatePath(-5, 5, -9, 10));
+    //aStarGraph.createDebugRenderGraphics();
 
     finishedLoading = true;
   }
@@ -146,10 +149,10 @@ public class World implements Disposable
     {
       renderable.render(renderBatch);
       //If renderbatch is not flushed here, the texture of the pet is also applied to the carrot
-      //TODO: This seems to be a bug of libgdx, find proper way to do this
+      //TODO: This seems to be a bug of libgdx? (It only happens on Android HTC DESIRE Z, but not on Nexus 7), find proper way to do this
       renderBatch.flush();
     }
-    aStarGraph.debugRender(renderBatch);
+    //aStarGraph.debugRender(renderBatch);
     renderBatch.end();
     hud.render();
   }

@@ -38,7 +38,8 @@ public class EventManager
       event = eventQueue.poll();
       EventTarget eventTarget = event.getEventTarget();
       EventHandler eventHandler = eventHandlers.get(eventTarget);
-      eventHandler.handleEvent(event);
+      if (eventHandler != null)
+        eventHandler.handleEvent(event);
     }
   }
 }

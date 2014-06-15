@@ -1,43 +1,116 @@
 package com.crazysaem.alpha.actors.protagonist;
 
+import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.events.Event;
 import com.crazysaem.alpha.events.EventHandler;
+import com.crazysaem.alpha.events.MoveEvent;
 import com.crazysaem.alpha.graphics.Renderable;
+import com.crazysaem.alpha.pathfinding.PositionPerTime;
+import com.crazysaem.alpha.pathfinding.StartPosition;
 
 /**
  * Created by crazysaem on 23.05.2014.
  */
-public class Elephant extends Renderable implements EventHandler
+public class Elephant extends Renderable implements EventHandler, StartPosition
 {
   private static final String IDLE = "idle";
   private static final String WALK = "walk";
   private static final String CARROT = "carrot";
+
+  private Vector3 position, initialDirection, direction, upVector;
+  private PositionPerTime positionPerTime;
+  private Vector3 movePosition;
+  private float time;
+  private boolean isMoving;
+  private float directionAngle;
 
   protected void finishLoading()
   {
     super.finishLoading("Elephant", "ElephantArmature");
 
     animationController.setAnimation(IDLE, -1);
+    position = new Vector3();
+    initialDirection = new Vector3(0.0f, 0.0f, 1.0f);
+    direction = new Vector3(0.0f, 0.0f, 1.0f);
+    upVector = new Vector3(0.0f, 1.0f, 0.0f);
+    movePosition = new Vector3();
+  }
+
+  @Override
+  public void update(float delta)
+  {
+    super.update(delta);
+
+    if (isMoving)
+    {
+      time += delta;
+      if (positionPerTime.getPosition(2.0f, time, movePosition))
+      {
+        isMoving = false;
+        animationController.setAnimation(IDLE, -1);
+      }
+
+      direction.x = movePosition.x - position.x;
+      direction.z = movePosition.z - position.z;
+      direction = direction.nor();
+
+      directionAngle = (float) Math.acos((double) initialDirection.dot(direction)) * 57.3f;
+      if (direction.x < 0)
+        directionAngle = 360 - directionAngle;
+
+      //modelInstance.transform.setToLookAt(direction, upVector);
+      //modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).setToLookAt(direction, upVector);
+      //modelInstance.transform.setToLookAt(movePosition, direction, upVector);
+
+      /*Matrix4 m0 = modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).cpy();
+      Matrix4 m1 = modelInstance.transform.setToLookAt(direction, upVector).cpy();
+      modelInstance.transform.idt().mul(m0).mul(m1);*/
+      modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).rotate(upVector, directionAngle);
+
+      position.x = movePosition.x;
+      position.z = movePosition.z;
+    }
   }
 
   @Override
   public void handleEvent(Event event)
   {
-    String action = event.getAction();
-
-    if (action.equals(WALK))
+    if (event instanceof MoveEvent)
     {
-      animationController.animate(WALK, 5, null, 0.2f);
-      animationController.queue(IDLE, -1, 1.0f, null, 0.3f);
-    }
-    else if (action.equals(CARROT))
-    {
-      animationController.animate(CARROT, 1, null, 0.2f);
-      animationController.queue(IDLE, -1, 1.0f, null, 0.55f);
+      MoveEvent moveEvent = (MoveEvent) event;
+      positionPerTime = moveEvent.getPositionPerTime();
+      animationController.setAnimation(WALK, -1);
+      time = 0.0f;
+      isMoving = true;
     }
     else
     {
-      System.out.println("Pet received unknown event: " + event.getAction());
+      String action = event.getAction();
+
+      if (action.equals(WALK))
+      {
+        animationController.animate(WALK, 5, null, 0.2f);
+        animationController.queue(IDLE, -1, 1.0f, null, 0.3f);
+      }
+      else if (action.equals(CARROT))
+      {
+        animationController.animate(CARROT, 1, null, 0.2f);
+        animationController.queue(IDLE, -1, 1.0f, null, 0.55f);
+      }
+      else
+      {
+        System.out.println("Pet received unknown event: " + event.getAction());
+      }
     }
+  }
+
+  public int getX()
+  {
+    return (int) position.x;
+  }
+
+  public int getZ()
+  {
+    return (int) position.z;
   }
 }

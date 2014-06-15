@@ -26,9 +26,6 @@ public class House extends Renderable implements EventHandler
     houseParts.add(new HousePart("Floor"));
     houseParts.add(new HousePart("Wall0"));
     houseParts.add(new HousePart("Wall1"));
-    //houseParts.add(new HousePart("ArmChair"));
-    houseParts.add(new HousePart("Shelf"));
-    houseParts.add(new ShelfBox());
   }
 
   @Override
@@ -79,20 +76,5 @@ public class House extends Renderable implements EventHandler
     }
   }
 
-  class ShelfBox extends HousePart
-  {
-    public ShelfBox()
-    {
-      super("ShelfBox");
-    }
 
-    @Override
-    protected void finishLoading()
-    {
-      super.finishLoading();
-
-      Material material = modelInstance.materials.first();
-      material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
-    }
-  }
 }
