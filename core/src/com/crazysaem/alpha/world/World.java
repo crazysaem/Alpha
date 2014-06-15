@@ -58,22 +58,6 @@ public class World implements Disposable
     cam.update();
     camController = new CameraController(cam);
     camController.target.y = 1.12f;
-    /*
-    Vector3 target = new Vector3(-6f, 1.12f, 0.0f);
-    Vector3 right = new Vector3().set(cam.direction).crs(cam.up).nor();
-
-    // This angles usualy comes from touchDragged event in your input processor
-    // class implementing the InputProcessor, where you do your calculations
-    float deltaAngleX = -45f;
-    float deltaAngleY = 45.0f;
-
-    // Rotate around X axis
-    cam.rotateAround(target, right, deltaAngleX);
-
-    // Rotate around Y
-    //cam.rotate(Vector3.Y, deltaAngleY);
-    cam.rotateAround(target, Vector3.Y, deltaAngleY);
-    cam.update();*/
 
     renderBatch = new RenderBatch();
     renderables = new ArrayList<Renderable>();
@@ -159,7 +143,6 @@ public class World implements Disposable
 
     if (elephant.isMoving())
     {
-      //cam.translate();
       cam.lookAt(elephant.getX(), 1.12f, elephant.getZ());
       cam.up.x = 0.0f;
       cam.up.y = 1.0f;

@@ -60,17 +60,10 @@ public class Elephant extends Renderable implements EventHandler, Position
       deltaPosition.z = direction.z;
       direction = direction.nor();
 
-      directionAngle = (float) Math.acos((double) initialDirection.dot(direction)) * 57.3f;
+      directionAngle = (float) Math.acos(initialDirection.dot(direction)) * 57.3f;
       if (direction.x < 0)
         directionAngle = 360 - directionAngle;
 
-      //modelInstance.transform.setToLookAt(direction, upVector);
-      //modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).setToLookAt(direction, upVector);
-      //modelInstance.transform.setToLookAt(movePosition, direction, upVector);
-
-      /*Matrix4 m0 = modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).cpy();
-      Matrix4 m1 = modelInstance.transform.setToLookAt(direction, upVector).cpy();
-      modelInstance.transform.idt().mul(m0).mul(m1);*/
       modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).rotate(upVector, directionAngle);
 
       position.x = movePosition.x;
