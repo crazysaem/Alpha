@@ -108,11 +108,13 @@ public class Elephant extends Renderable implements EventHandler, Position
     return isMoving;
   }
 
+  @Override
   public float getX()
   {
     return position.x;
   }
 
+  @Override
   public float getZ()
   {
     return position.z;
@@ -128,5 +130,11 @@ public class Elephant extends Renderable implements EventHandler, Position
   public float getDeltaZ()
   {
     return deltaPosition.z;
+  }
+
+  @Override
+  public float getDirectionAngle()
+  {
+    return directionAngle;
   }
 }

@@ -1,6 +1,7 @@
 Textures from:
 http://cgtextures.com/
 http://www.tutorialsforblender3d.com/Textures/Skys/Sky_Dome_1.html
+http://blenderartists.org/forum/showthread.php?250865-Eye-Texture-Pack
 
 Tools used:
 http://www.blender.org/

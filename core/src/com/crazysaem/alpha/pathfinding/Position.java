@@ -10,4 +10,6 @@ public interface Position
 
   public float getDeltaX();
   public float getDeltaZ();
+
+  public float getDirectionAngle();
 }
