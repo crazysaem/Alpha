@@ -1,17 +1,18 @@
 package com.crazysaem.alpha.actors.protagonist;
 
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.events.Event;
 import com.crazysaem.alpha.events.EventHandler;
 import com.crazysaem.alpha.events.MoveEvent;
 import com.crazysaem.alpha.graphics.Renderable;
-import com.crazysaem.alpha.pathfinding.Position;
+import com.crazysaem.alpha.pathfinding.AstarPosition;
 import com.crazysaem.alpha.pathfinding.PositionPerTime;
 
 /**
  * Created by crazysaem on 23.05.2014.
  */
-public class Elephant extends Renderable implements EventHandler, Position
+public class Elephant extends Renderable implements EventHandler, AstarPosition, AnimationController.AnimationListener
 {
   private static final String IDLE = "idle";
   private static final String WALK = "walk";
@@ -23,6 +24,8 @@ public class Elephant extends Renderable implements EventHandler, Position
   private float time;
   private boolean isMoving;
   private float directionAngle;
+  private ElephantPose currentPose, nextPose;
+  private boolean animationInProgress;
 
   protected void finishLoading()
   {
@@ -35,6 +38,9 @@ public class Elephant extends Renderable implements EventHandler, Position
     direction = new Vector3(0.0f, 0.0f, 1.0f);
     upVector = new Vector3(0.0f, 1.0f, 0.0f);
     movePosition = new Vector3();
+    currentPose = ElephantPose.STANDING;
+    nextPose = ElephantPose.NONE;
+    animationInProgress = false;
   }
 
   @Override
@@ -42,8 +48,20 @@ public class Elephant extends Renderable implements EventHandler, Position
   {
     super.update(delta);
 
+    if (animationInProgress)
+      return;
+
     if (isMoving)
     {
+      if (currentPose == ElephantPose.SITTING)
+      {
+        currentPose = ElephantPose.STANDING;
+        animationController.setAnimation("sitting", 1, -1.0f, this);
+        animationController.queue(WALK, -1, 1.0f, null, 0.0f);
+        animationInProgress = true;
+        return;
+      }
+
       time += delta;
       if (positionPerTime.getPosition(2.0f, time, movePosition))
       {
@@ -51,20 +69,38 @@ public class Elephant extends Renderable implements EventHandler, Position
         deltaPosition.x = 0.0f;
         deltaPosition.y = 0.0f;
         deltaPosition.z = 0.0f;
-        animationController.setAnimation(IDLE, -1);
+        switch (nextPose)
+        {
+          case SITTING:
+            currentPose = ElephantPose.SITTING;
+            nextPose = ElephantPose.NONE;
+            animationController.setAnimation("sitting", 1, 1.0f, this);
+            animationInProgress = true;
+            direction.x = 0.0f;
+            direction.z = 0.0f;
+            direction = direction.nor();
+            modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).rotate(upVector, 0);
+            break;
+
+          default:
+            animationController.setAnimation(IDLE, -1);
+            break;
+        }
       }
+      else
+      {
+        direction.x = movePosition.x - position.x;
+        direction.z = movePosition.z - position.z;
+        deltaPosition.x = direction.x;
+        deltaPosition.z = direction.z;
+        direction = direction.nor();
 
-      direction.x = movePosition.x - position.x;
-      direction.z = movePosition.z - position.z;
-      deltaPosition.x = direction.x;
-      deltaPosition.z = direction.z;
-      direction = direction.nor();
+        directionAngle = (float) Math.acos(initialDirection.dot(direction)) * 57.3f;
+        if (direction.x < 0)
+          directionAngle = 360 - directionAngle;
 
-      directionAngle = (float) Math.acos(initialDirection.dot(direction)) * 57.3f;
-      if (direction.x < 0)
-        directionAngle = 360 - directionAngle;
-
-      modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).rotate(upVector, directionAngle);
+        modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).rotate(upVector, directionAngle);
+      }
 
       position.x = movePosition.x;
       position.z = movePosition.z;
@@ -78,8 +114,13 @@ public class Elephant extends Renderable implements EventHandler, Position
     {
       MoveEvent moveEvent = (MoveEvent) event;
       positionPerTime = moveEvent.getPositionPerTime();
-      animationController.setAnimation(WALK, -1);
+      if (currentPose == ElephantPose.STANDING)
+        animationController.setAnimation(WALK, -1);
       time = 0.0f;
+      if (moveEvent.getAction() == "SITTING")
+      {
+        nextPose = ElephantPose.SITTING;
+      }
       isMoving = true;
     }
     else
@@ -120,21 +161,30 @@ public class Elephant extends Renderable implements EventHandler, Position
     return position.z;
   }
 
-  @Override
   public float getDeltaX()
   {
     return deltaPosition.x;
   }
 
-  @Override
   public float getDeltaZ()
   {
     return deltaPosition.z;
   }
 
-  @Override
   public float getDirectionAngle()
   {
     return directionAngle;
+  }
+
+  @Override
+  public void onEnd(AnimationController.AnimationDesc animation)
+  {
+    animationInProgress = false;
+  }
+
+  @Override
+  public void onLoop(AnimationController.AnimationDesc animation)
+  {
+
   }
 }

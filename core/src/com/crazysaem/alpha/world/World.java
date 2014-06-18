@@ -4,8 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.crazysaem.alpha.actors.food.Carrot;
 import com.crazysaem.alpha.actors.furniture.ArmChair;
@@ -22,12 +20,15 @@ import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.hud.HUD;
 import com.crazysaem.alpha.pathfinding.AStarAlgorithm;
 import com.crazysaem.alpha.pathfinding.AStarGraph;
+import com.crazysaem.alpha.pathfinding.AstarPosition;
 import com.crazysaem.alpha.picking.RayPicking;
 import com.crazysaem.alpha.picking.StaticTarget;
 import com.crazysaem.alpha.picking.StaticTargetPool;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by crazysaem on 23.05.2014.
@@ -94,7 +95,10 @@ public class World implements Disposable
     staticTargetPoolGraph.add(new StaticTarget(armChair, EventTarget.ARMCHAIR));
 
     aStarGraph = new AStarGraph(staticTargetPoolGraph);
-    AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(aStarGraph, eventManager, elephant);
+    Map<EventTarget, AstarPosition> astarPositions = new HashMap<EventTarget, AstarPosition>();
+    astarPositions.put(EventTarget.ELEPHANT, elephant);
+    astarPositions.put(EventTarget.ARMCHAIR, armChair);
+    AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(aStarGraph, eventManager, astarPositions);
     eventManager.registerEventHandler(EventTarget.ASTAR_GROUND, aStarAlgorithm);
     eventManager.registerEventHandler(EventTarget.ASTAR_FLOOR, aStarAlgorithm);
     eventManager.registerEventHandler(EventTarget.ASTAR_ARMCHAIR, aStarAlgorithm);

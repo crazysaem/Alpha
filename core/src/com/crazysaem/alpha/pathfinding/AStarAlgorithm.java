@@ -11,16 +11,16 @@ public class AStarAlgorithm implements EventHandler
 {
   private AStarGraph aStarGraph;
   private EventManager eventManager;
-  private Position position;
+  private Map<EventTarget, AstarPosition> astarPositions;
   private HashMap<Node, Node> closedList;
   private HashMap<Node, Node> openList;
   private TreeSet<Node> openListFSorted;
 
-  public AStarAlgorithm(AStarGraph aStarGraph, EventManager eventManager, Position position)
+  public AStarAlgorithm(AStarGraph aStarGraph, EventManager eventManager, Map<EventTarget, AstarPosition> astarPositions)
   {
     this.aStarGraph = aStarGraph;
     this.eventManager = eventManager;
-    this.position = position;
+    this.astarPositions = astarPositions;
 
     closedList = new HashMap<Node, Node>();
     openList = new HashMap<Node, Node>();
@@ -33,6 +33,8 @@ public class AStarAlgorithm implements EventHandler
     if (event instanceof HitEvent)
     {
       HitEvent hitEvent = (HitEvent) event;
+      Path path;
+      AstarPosition elephantPosition = astarPositions.get(EventTarget.ELEPHANT);
 
       switch (hitEvent.getEventTarget())
       {
@@ -41,9 +43,16 @@ public class AStarAlgorithm implements EventHandler
           //TODO: get closest Node position for given hitPosition
           int goalX = (int) hitEvent.getHitPos().x;
           int goalZ = (int) hitEvent.getHitPos().z;
-          Path path = calculatePath((int) position.getX(), (int) position.getZ(), goalX, goalZ);
+          path = calculatePath((int) elephantPosition.getX(), (int) elephantPosition.getZ(), goalX, goalZ);
           if (path != null)
-            eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "MOVE", path));
+            eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "WALKING", path));
+          break;
+
+        case ASTAR_ARMCHAIR:
+          AstarPosition armChairGoal = astarPositions.get(EventTarget.ARMCHAIR);
+          path = calculatePath((int) elephantPosition.getX(), (int) elephantPosition.getZ(), (int) armChairGoal.getX(), (int) armChairGoal.getZ());
+          if (path != null)
+            eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "SITTING", path));
           break;
       }
     }
