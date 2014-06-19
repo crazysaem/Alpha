@@ -20,8 +20,11 @@ public class RenderBatch implements Disposable
   {
     modelBatch = new ModelBatch();
     defaultEnvironment = new Environment();
-    defaultEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-    defaultEnvironment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+    defaultEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1.0f));
+    //defaultEnvironment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+    defaultEnvironment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 1.0f, -1.0f, 1.0f));
+    defaultEnvironment.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, 0.0f, 0.0f, -1.0f));
+    //defaultEnvironment.add(new DirectionalLight().set(0.2f, 0.2f, 0.2f, 0.0f, -1.0f, 0.0f));
   }
 
   public void begin(Camera cam)

@@ -29,7 +29,7 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
 
   protected void finishLoading()
   {
-    super.finishLoading("Elephant", "ElephantArmature");
+    super.finishLoading("Elephant", "TShirt", "Trousers", "ElephantArmature");
 
     animationController.setAnimation(IDLE, -1);
     position = new Vector3();

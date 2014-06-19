@@ -9,7 +9,7 @@ import com.crazysaem.alpha.graphics.Renderable;
  */
 public class Carrot extends Renderable implements EventHandler
 {
-  private static final String IDLE = "idle";
+  private static final String IDLE = "walk";
   private static final String CARROT = "carrot";
 
   @Override
