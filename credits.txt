@@ -19,3 +19,6 @@ Inspired by:
 	Algorithms:
 	http://www.policyalmanac.org/games/aStarTutorial.htm
 	http://web.mit.edu/eranki/www/tutorials/search/
+
+Bugs:
+http://androidblog.reindustries.com/hack-bad-gpu-fix-not-using-correct-texture-opengl/

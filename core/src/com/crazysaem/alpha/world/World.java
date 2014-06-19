@@ -9,6 +9,7 @@ import com.crazysaem.alpha.actors.food.Carrot;
 import com.crazysaem.alpha.actors.furniture.ArmChair;
 import com.crazysaem.alpha.actors.furniture.Shelf;
 import com.crazysaem.alpha.actors.house.House;
+import com.crazysaem.alpha.actors.house.Walls;
 import com.crazysaem.alpha.actors.outside.Ground;
 import com.crazysaem.alpha.actors.outside.Sky;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
@@ -44,6 +45,7 @@ public class World implements Disposable
   private AStarGraph aStarGraph;
   private boolean finishedLoading;
   private Elephant elephant;
+  private Walls walls;
 
   public World()
   {
@@ -62,7 +64,7 @@ public class World implements Disposable
 
     renderBatch = new RenderBatch();
     renderables = new ArrayList<Renderable>();
-
+    /*
     eventManager = new EventManager();
     hud = new HUD(eventManager);
 
@@ -116,7 +118,9 @@ public class World implements Disposable
     inputMultiplexer.addProcessor(hud.getInputProcessor());
     inputMultiplexer.addProcessor(new RayPicking(cam, eventManager, staticTargetPoolInteraction, staticTargetPoolObfuscation));
     inputMultiplexer.addProcessor(camController);
-    Gdx.input.setInputProcessor(inputMultiplexer);
+    Gdx.input.setInputProcessor(inputMultiplexer);*/
+    Gdx.input.setInputProcessor(camController);
+    walls = new Walls();
   }
 
   private void finishedLoading()
@@ -130,7 +134,7 @@ public class World implements Disposable
 
   public void update(float delta)
   {
-    camController.update();
+    camController.update();/*
     eventManager.update();
     hud.update(delta);
     for (Renderable renderable : renderables)
@@ -155,26 +159,28 @@ public class World implements Disposable
       cam.update();
       camController.target.x = elephant.getX();
       camController.target.z = elephant.getZ();
-    }
+    }*/
+    walls.update(delta);
   }
 
   public void render()
   {
-    Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+    //Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
     renderBatch.begin(cam);
-    for (Renderable renderable : renderables)
+    walls.render(renderBatch);
+    /*for (Renderable renderable : renderables)
     {
       renderable.render(renderBatch);
       //If renderbatch is not flushed here, the texture of the pet is also applied to the carrot
       //TODO: This seems to be a bug of libgdx? (It only happens on Android HTC DESIRE Z, but not on Nexus 7), find proper way to do this
       renderBatch.flush();
-    }
+    }*/
     //aStarGraph.debugRender(renderBatch);
     renderBatch.end();
-    hud.render();
+    //hud.render();
   }
 
   @Override
