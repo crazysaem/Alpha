@@ -159,42 +159,6 @@ public abstract class StaticRenderable extends Renderable
     }
     verticesBuffer.position(pos);
   }
-  /*
-  private void fillVertices(ShortBuffer indicesBuffer, FloatBuffer verticesBuffer, MeshPart meshPart)
-  {
-    int pos = indicesBuffer.position();
-    indicesBuffer.position(meshPart.indexOffset);
-    indicesBuffer.get(indices, 0, meshPart.numVertices);
-    indicesBuffer.position(pos);
-
-    int minIndex = indices[0];
-    int maxIndex = indices[indices.length - 1];
-    int numVertices = maxIndex - minIndex + 1;
-
-
-    pos = verticesBuffer.position();
-    verticesBuffer.position(0);
-    //vertices = new float[numVertices * 3];
-    float[] vTemp = new float[3];
-
-    for (int i = 0; i < numVertices; i++)
-    {
-      verticesBuffer.position((minIndex + i) * vertexSize);
-      verticesBuffer.get(vTemp, 0, 3);
-      //Because the raw geometry is still stored in the Blender coordinate system, we have to map it to
-      //the libGDX coordinate by flipping y & z and negate y.
-      vertices[i * 3 + 0] = vTemp[0];
-      vertices[i * 3 + 1] = vTemp[2];
-      vertices[i * 3 + 2] = -vTemp[1];
-    }
-    verticesBuffer.position(pos);
-    vertexSize = 3;
-
-    for (int i = 0; i < indices.length; i++)
-    {
-      indices[i] -= minIndex;
-    }
-  }*/
 
   @Override
   public void dispose()
