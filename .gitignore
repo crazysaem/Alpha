@@ -11,5 +11,7 @@
 !desktop/*
 !html/
 !html/*
+!patches/
+!patches/*
 !rawAssets/
 !rawAssets/*

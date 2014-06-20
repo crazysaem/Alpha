@@ -24,8 +24,8 @@ public class House extends Renderable implements EventHandler
     houseParts = new LinkedList<HousePart>();
 
     houseParts.add(new HousePart("Floor"));
-    houseParts.add(new HousePart("Wall0"));
-    houseParts.add(new HousePart("Wall1"));
+    //houseParts.add(new HousePart("Wall0"));
+    //houseParts.add(new HousePart("Wall1"));
   }
 
   @Override

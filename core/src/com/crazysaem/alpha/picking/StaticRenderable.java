@@ -2,6 +2,8 @@ package com.crazysaem.alpha.picking;
 
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
+import com.badlogic.gdx.graphics.g3d.model.Node;
+import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -19,14 +21,13 @@ public abstract class StaticRenderable extends Renderable
   private BoundingBox boundingBox = new BoundingBox();
   private float[] vertices;
   private short[] indices;
-  private int vertexSize;
   private Vector3 intersection = new Vector3();
 
   public float collisionTest(Ray ray)
   {
     if (Intersector.intersectRayBoundsFast(ray, boundingBox))
     {
-      if (Intersector.intersectRayTriangles(ray, vertices, indices, vertexSize, intersection))
+      if (Intersector.intersectRayTriangles(ray, vertices, indices, 3, intersection))
       {
         return Math.abs(ray.origin.dst(intersection));
       }
@@ -39,7 +40,7 @@ public abstract class StaticRenderable extends Renderable
   {
     if (Intersector.intersectRayBoundsFast(ray, boundingBox))
     {
-      if (Intersector.intersectRayTriangles(ray, vertices, indices, vertexSize, intersection))
+      if (Intersector.intersectRayTriangles(ray, vertices, indices, 3, intersection))
       {
         float distanceTest = Math.abs(ray.origin.dst(intersection));
         if (distance > distanceTest)
@@ -65,12 +66,102 @@ public abstract class StaticRenderable extends Renderable
     super.finishLoading(useAnimationController, rootNodeIds);
 
     modelInstance.calculateBoundingBox(boundingBox);
-    MeshPart meshPart = modelInstance.nodes.get(0).parts.get(0).meshPart;
-    Mesh mesh = meshPart.mesh;
-    vertexSize = mesh.getVertexSize() / 4;
 
-    indices = new short[meshPart.numVertices];
-    ShortBuffer indicesBuffer = mesh.getIndicesBuffer();
+    int numIndices = 0;
+    int numVertices = 0;
+
+    //Get total number of indices
+    for (Node node : modelInstance.nodes)
+      for (NodePart nodePart : node.parts)
+        numIndices += nodePart.meshPart.numVertices;
+
+    indices = new short[numIndices];
+
+    //Copy all indices and get number of vertices
+    Mesh mesh;
+    int destOffset = 0;
+    for (Node node : modelInstance.nodes)
+    {
+      for (NodePart nodePart : node.parts)
+      {
+        mesh = nodePart.meshPart.mesh;
+        getIndices(mesh.getIndicesBuffer(), indices, nodePart.meshPart.indexOffset, destOffset, nodePart.meshPart.numVertices);
+
+        int minIndex = indices[destOffset];
+        int maxIndex = indices[destOffset + nodePart.meshPart.numVertices - 1];
+        numVertices += maxIndex - minIndex + 1;
+
+        destOffset += nodePart.meshPart.numVertices;
+      }
+    }
+
+    vertices = new float[numVertices * 3];
+
+    //Copy all vertices
+    int indexOffset = 0;
+    destOffset = 0;
+    for (Node node : modelInstance.nodes)
+    {
+      for (NodePart nodePart : node.parts)
+      {
+        mesh = nodePart.meshPart.mesh;
+        int vertexSize = mesh.getVertexSize() / 4;
+        int minIndex = indices[indexOffset];
+        int maxIndex = indices[indexOffset + nodePart.meshPart.numVertices - 1];
+        numVertices = maxIndex - minIndex + 1;
+        getVertices(mesh.getVerticesBuffer(), vertices, vertexSize, minIndex, destOffset * 3, numVertices);
+
+        indexOffset += nodePart.meshPart.numVertices;
+        destOffset += numVertices;
+      }
+    }
+
+    //Correct indices
+    indexOffset = 0;
+    int minIndex = indices[indexOffset];
+    for (Node node : modelInstance.nodes)
+    {
+      for (NodePart nodePart : node.parts)
+      {
+        for (int i = indexOffset; i < indexOffset + nodePart.meshPart.numVertices; i++)
+        {
+          indices[i] -= minIndex;
+        }
+
+        indexOffset += nodePart.meshPart.numVertices;
+      }
+    }
+  }
+
+  private void getIndices(ShortBuffer indicesBuffer, short[] indices, int srcOffset, int destOffset, int count)
+  {
+    int pos = indicesBuffer.position();
+    indicesBuffer.position(srcOffset);
+    indicesBuffer.get(indices, destOffset, count);
+    indicesBuffer.position(pos);
+  }
+
+  private void getVertices(FloatBuffer verticesBuffer, float[] vertices, int vertexSize, int srcOffset, int destOffset, int count)
+  {
+    int pos = verticesBuffer.position();
+    verticesBuffer.position(0);
+    float[] vTemp = new float[3];
+
+    for (int i = 0; i < count; i++)
+    {
+      verticesBuffer.position((srcOffset + i) * vertexSize);
+      verticesBuffer.get(vTemp, 0, 3);
+      //Because the raw geometry is still stored in the Blender coordinate system, we have to map it to
+      //the libGDX coordinate by flipping y & z and negate y.
+      vertices[destOffset + i * 3 + 0] = vTemp[0];
+      vertices[destOffset + i * 3 + 1] = vTemp[2];
+      vertices[destOffset + i * 3 + 2] = -vTemp[1];
+    }
+    verticesBuffer.position(pos);
+  }
+  /*
+  private void fillVertices(ShortBuffer indicesBuffer, FloatBuffer verticesBuffer, MeshPart meshPart)
+  {
     int pos = indicesBuffer.position();
     indicesBuffer.position(meshPart.indexOffset);
     indicesBuffer.get(indices, 0, meshPart.numVertices);
@@ -80,10 +171,10 @@ public abstract class StaticRenderable extends Renderable
     int maxIndex = indices[indices.length - 1];
     int numVertices = maxIndex - minIndex + 1;
 
-    FloatBuffer verticesBuffer = mesh.getVerticesBuffer();
+
     pos = verticesBuffer.position();
     verticesBuffer.position(0);
-    vertices = new float[numVertices * 3];
+    //vertices = new float[numVertices * 3];
     float[] vTemp = new float[3];
 
     for (int i = 0; i < numVertices; i++)
@@ -103,7 +194,7 @@ public abstract class StaticRenderable extends Renderable
     {
       indices[i] -= minIndex;
     }
-  }
+  }*/
 
   @Override
   public void dispose()

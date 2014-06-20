@@ -15,7 +15,7 @@ import com.crazysaem.alpha.picking.StaticRenderable;
 /**
  * Created by crazysaem on 08.06.2014.
  */
-public class Ground extends StaticRenderable implements EventHandler
+public class Ground extends StaticRenderable
 {
   @Override
   protected void finishLoading()
@@ -34,19 +34,5 @@ public class Ground extends StaticRenderable implements EventHandler
     textureAttribute.textureDescription.magFilter = Texture.TextureFilter.MipMapNearestNearest;
     textureAttribute.textureDescription.minFilter = Texture.TextureFilter.MipMapNearestNearest;
     modelInstance.materials.first().set(textureAttribute);
-  }
-
-  @Override
-  public void handleEvent(Event event)
-  {
-    if (event instanceof HitEvent)
-    {
-      HitEvent hitEvent = (HitEvent) event;
-      System.out.println("Ground recieved hit event: " + hitEvent.getHitPos().toString());
-    }
-    else
-    {
-      System.out.println("Ground recieved unknown event: " + event.getAction());
-    }
   }
 }

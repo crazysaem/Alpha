@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.crazysaem.alpha.actors.food.Carrot;
 import com.crazysaem.alpha.actors.furniture.ArmChair;
 import com.crazysaem.alpha.actors.furniture.Shelf;
+import com.crazysaem.alpha.actors.house.Floor;
 import com.crazysaem.alpha.actors.house.House;
 import com.crazysaem.alpha.actors.house.Walls;
 import com.crazysaem.alpha.actors.outside.Ground;
@@ -45,7 +46,7 @@ public class World implements Disposable
   private AStarGraph aStarGraph;
   private boolean finishedLoading;
   private Elephant elephant;
-  private Walls walls;
+  private Shelf shelf;
 
   public World()
   {
@@ -64,36 +65,35 @@ public class World implements Disposable
 
     renderBatch = new RenderBatch();
     renderables = new ArrayList<Renderable>();
-    /*
+
     eventManager = new EventManager();
     hud = new HUD(eventManager);
 
     Carrot carrot = new Carrot();
     ArmChair armChair = new ArmChair();
-    House house = new House();
+    Walls walls = new Walls();
+    Floor floor = new Floor();
     Sky sky = new Sky();
     Ground ground = new Ground();
-    Shelf shelf = new Shelf();
+    shelf = new Shelf();
     elephant = new Elephant();
 
     eventManager.registerEventHandler(EventTarget.NONE, null);
     eventManager.registerEventHandler(EventTarget.ELEPHANT, elephant);
     eventManager.registerEventHandler(EventTarget.CARROT, carrot);
     eventManager.registerEventHandler(EventTarget.ARMCHAIR, armChair);
-    eventManager.registerEventHandler(EventTarget.HOUSE, house);
-    eventManager.registerEventHandler(EventTarget.GROUND, ground);
 
     renderables.add(elephant);
     renderables.add(carrot);
     renderables.add(armChair);
     renderables.add(sky);
     renderables.add(ground);
-    renderables.add(house);
-    renderables.add(shelf);
+    renderables.add(floor);
+    renderables.add(walls);
+    //renderables.add(shelf);
 
     StaticTargetPool staticTargetPoolGraph = new StaticTargetPool();
-    staticTargetPoolGraph.add(new StaticTarget(house.houseParts.get(1), EventTarget.HOUSE));
-    staticTargetPoolGraph.add(new StaticTarget(house.houseParts.get(2), EventTarget.HOUSE));
+    staticTargetPoolGraph.add(new StaticTarget(walls, EventTarget.HOUSE));
     staticTargetPoolGraph.add(new StaticTarget(armChair, EventTarget.ARMCHAIR));
 
     aStarGraph = new AStarGraph(staticTargetPoolGraph);
@@ -107,20 +107,17 @@ public class World implements Disposable
 
     StaticTargetPool staticTargetPoolInteraction = new StaticTargetPool();
     staticTargetPoolInteraction.add(new StaticTarget(ground, EventTarget.ASTAR_GROUND));
-    staticTargetPoolInteraction.add(new StaticTarget(house.houseParts.get(0), EventTarget.ASTAR_FLOOR));
+    staticTargetPoolInteraction.add(new StaticTarget(floor, EventTarget.ASTAR_FLOOR));
     staticTargetPoolInteraction.add(new StaticTarget(armChair, EventTarget.ASTAR_ARMCHAIR));
 
     StaticTargetPool staticTargetPoolObfuscation = new StaticTargetPool();
-    staticTargetPoolObfuscation.add(new StaticTarget(house.houseParts.get(1), EventTarget.NONE));
-    staticTargetPoolObfuscation.add(new StaticTarget(house.houseParts.get(2), EventTarget.NONE));
+    staticTargetPoolObfuscation.add(new StaticTarget(walls, EventTarget.NONE));
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
     inputMultiplexer.addProcessor(new RayPicking(cam, eventManager, staticTargetPoolInteraction, staticTargetPoolObfuscation));
     inputMultiplexer.addProcessor(camController);
-    Gdx.input.setInputProcessor(inputMultiplexer);*/
-    Gdx.input.setInputProcessor(camController);
-    walls = new Walls();
+    Gdx.input.setInputProcessor(inputMultiplexer);
   }
 
   private void finishedLoading()
@@ -134,7 +131,7 @@ public class World implements Disposable
 
   public void update(float delta)
   {
-    camController.update();/*
+    camController.update();
     eventManager.update();
     hud.update(delta);
     for (Renderable renderable : renderables)
@@ -159,28 +156,28 @@ public class World implements Disposable
       cam.update();
       camController.target.x = elephant.getX();
       camController.target.z = elephant.getZ();
-    }*/
-    walls.update(delta);
+    }
+
+    shelf.update(delta);
   }
 
   public void render()
   {
-    //Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
     renderBatch.begin(cam);
-    walls.render(renderBatch);
-    /*for (Renderable renderable : renderables)
-    {
+    for (Renderable renderable : renderables)
       renderable.render(renderBatch);
-      //If renderbatch is not flushed here, the texture of the pet is also applied to the carrot
-      //TODO: This seems to be a bug of libgdx? (It only happens on Android HTC DESIRE Z, but not on Nexus 7), find proper way to do this
-      renderBatch.flush();
-    }*/
+
+    //We need to flush once to enable blending
+    renderBatch.flush();
+    shelf.render(renderBatch);
+
     //aStarGraph.debugRender(renderBatch);
     renderBatch.end();
-    //hud.render();
+
+    hud.render();
   }
 
   @Override

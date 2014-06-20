@@ -29,7 +29,6 @@ public class Shelf extends Renderable
   public void render(RenderBatch renderBatch)
   {
     super.render(renderBatch);
-    renderBatch.flush();
     shelfBox.render(renderBatch);
   }
 
@@ -47,7 +46,8 @@ public class Shelf extends Renderable
       super.finishLoading(false, "ShelfBox");
 
       Material material = modelInstance.materials.first();
-      material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+      //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+      material.set(new BlendingAttribute(true, 1.0f));
     }
   }
 }
