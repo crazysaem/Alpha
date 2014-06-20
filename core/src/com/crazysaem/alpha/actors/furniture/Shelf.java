@@ -3,6 +3,7 @@ package com.crazysaem.alpha.actors.furniture;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 
@@ -46,7 +47,6 @@ public class Shelf extends Renderable
       super.finishLoading(false, "ShelfBox");
 
       Material material = modelInstance.materials.first();
-      //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
       material.set(new BlendingAttribute(true, 1.0f));
     }
   }

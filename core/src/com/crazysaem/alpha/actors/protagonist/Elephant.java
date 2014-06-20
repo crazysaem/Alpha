@@ -1,5 +1,9 @@
 package com.crazysaem.alpha.actors.protagonist;
 
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.UVOffsetAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.events.Event;
@@ -21,15 +25,36 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
   private Vector3 position, deltaPosition, initialDirection, direction, upVector;
   private PositionPerTime positionPerTime;
   private Vector3 movePosition;
-  private float time;
+  private float moveTime, faceAnimationTime;
   private boolean isMoving;
   private float directionAngle;
   private ElephantPose currentPose, nextPose;
   private boolean animationInProgress;
+  private int blinkingStep;
+  private float uOffsetStep, vOffsetStep;
+  private UVOffsetAttribute uvOffsetAttribute;
 
   protected void finishLoading()
   {
-    super.finishLoading("Elephant", "TShirt", "Trousers", "ElephantArmature");
+    super.finishLoading("Elephant", "ElephantFace", "TShirt", "Trousers", "ElephantArmature");
+
+    Material faceMaterial = null;
+    for (Material material : modelInstance.materials)
+    {
+      if (material.id.contains("ElephantFace"))
+      {
+        faceMaterial = material;
+        break;
+      }
+    }
+
+    uOffsetStep = 144.0f / 512.0f;
+    vOffsetStep = 219.0f / 512.0f;
+
+    uvOffsetAttribute = new UVOffsetAttribute(0.0f, 0.0f);
+    faceMaterial.set(uvOffsetAttribute);
+    faceMaterial.set(new BlendingAttribute(true, 1.0f));
+    faceMaterial.set(new DepthTestAttribute(0));
 
     animationController.setAnimation(IDLE, -1);
     position = new Vector3();
@@ -48,8 +73,42 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
   {
     super.update(delta);
 
-    if (animationInProgress)
+    if (animationInProgress || loading)
       return;
+
+    faceAnimationTime += delta;
+
+    if (faceAnimationTime > 2.0f || blinkingStep > 0)
+    {
+      if (faceAnimationTime > 0.01f)
+      {
+        blinkingStep++;
+
+        switch (blinkingStep)
+        {
+          case 1:
+            uvOffsetAttribute.u = uOffsetStep;
+            break;
+
+          case 2:
+            uvOffsetAttribute.u = uOffsetStep * 2;
+            break;
+
+          case 3:
+            uvOffsetAttribute.u = 0.0f;
+            uvOffsetAttribute.v = vOffsetStep;
+            break;
+
+          case 4:
+            uvOffsetAttribute.u = 0.0f;
+            uvOffsetAttribute.v = 0.0f;
+            blinkingStep = 0;
+            break;
+        }
+
+        faceAnimationTime = 0.0f;
+      }
+    }
 
     if (isMoving)
     {
@@ -62,8 +121,8 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
         return;
       }
 
-      time += delta;
-      if (positionPerTime.getPosition(2.0f, time, movePosition))
+      moveTime += delta;
+      if (positionPerTime.getPosition(2.0f, moveTime, movePosition))
       {
         isMoving = false;
         deltaPosition.x = 0.0f;
@@ -116,7 +175,7 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
       positionPerTime = moveEvent.getPositionPerTime();
       if (currentPose == ElephantPose.STANDING)
         animationController.setAnimation(WALK, -1);
-      time = 0.0f;
+      moveTime = 0.0f;
       if (moveEvent.getAction() == "SITTING")
       {
         nextPose = ElephantPose.SITTING;
