@@ -48,6 +48,8 @@ public class World implements Disposable
   private Elephant elephant;
   private Shelf shelf;
 
+  private static final float CAMERA_HEIGHT = 2.0f;
+
   public World()
   {
     finishedLoading = false;
@@ -55,13 +57,13 @@ public class World implements Disposable
 
     cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     //Place camera
-    cam.position.set(0.0f, 1.12f, 8.0f);
-    cam.lookAt(0.0f, 1.12f, 0.0f);
+    cam.position.set(0.0f, CAMERA_HEIGHT, 8.0f);
+    cam.lookAt(0.0f, CAMERA_HEIGHT, 0.0f);
     cam.near = 1.0f;
     cam.far = 300.0f;
     cam.update();
     camController = new CameraController(cam);
-    camController.target.y = 1.12f;
+    camController.target.y = CAMERA_HEIGHT;
 
     renderBatch = new RenderBatch();
     renderables = new ArrayList<Renderable>();
@@ -148,7 +150,7 @@ public class World implements Disposable
 
     if (elephant.isMoving())
     {
-      cam.lookAt(elephant.getX(), 1.12f, elephant.getZ());
+      cam.lookAt(elephant.getX(), CAMERA_HEIGHT, elephant.getZ());
       cam.up.x = 0.0f;
       cam.up.y = 1.0f;
       cam.up.z = 0.0f;

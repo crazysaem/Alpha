@@ -1,15 +1,7 @@
 package com.crazysaem.alpha.actors.outside;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
-import com.crazysaem.alpha.events.Event;
-import com.crazysaem.alpha.events.EventHandler;
-import com.crazysaem.alpha.events.HitEvent;
-import com.crazysaem.alpha.graphics.RenderBatch;
-import com.crazysaem.alpha.graphics.Renderable;
+import com.crazysaem.alpha.graphics.Utils;
 import com.crazysaem.alpha.picking.StaticRenderable;
 
 /**
@@ -22,17 +14,6 @@ public class Ground extends StaticRenderable
   {
     super.finishLoading("Ground");
 
-    final TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.first().get(TextureAttribute.Diffuse);
-    textureAttribute.textureDescription.texture.dispose();
-
-    //TODO: This is a terrible way to activate mipmaps for the ground texture. Fix this
-
-    Texture t = new Texture(Gdx.files.internal("models/ground.jpg"), null, true);
-    t.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.MipMapLinearLinear);
-    textureAttribute.textureDescription.texture = t;
-
-    textureAttribute.textureDescription.magFilter = Texture.TextureFilter.MipMapNearestNearest;
-    textureAttribute.textureDescription.minFilter = Texture.TextureFilter.MipMapNearestNearest;
-    modelInstance.materials.first().set(textureAttribute);
+    Utils.activateMipMap(modelInstance.materials.first(), "models/ground.jpg", Texture.TextureFilter.MipMapNearestNearest);
   }
 }

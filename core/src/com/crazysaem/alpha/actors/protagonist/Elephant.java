@@ -1,5 +1,6 @@
 package com.crazysaem.alpha.actors.protagonist;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.events.Event;
 import com.crazysaem.alpha.events.EventHandler;
 import com.crazysaem.alpha.events.MoveEvent;
+import com.crazysaem.alpha.graphics.Utils;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.pathfinding.AstarPosition;
 import com.crazysaem.alpha.pathfinding.PositionPerTime;
@@ -36,25 +38,22 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
 
   protected void finishLoading()
   {
-    super.finishLoading("Elephant", "ElephantFace", "TShirt", "Trousers", "ElephantArmature");
-
-    Material faceMaterial = null;
-    for (Material material : modelInstance.materials)
-    {
-      if (material.id.contains("ElephantFace"))
-      {
-        faceMaterial = material;
-        break;
-      }
-    }
+    super.finishLoading("Elephant", "ElephantFace", "Cap", "TShirt", "Trousers", "ElephantArmature");
 
     uOffsetStep = 144.0f / 512.0f;
     vOffsetStep = 219.0f / 512.0f;
-
     uvOffsetAttribute = new UVOffsetAttribute(0.0f, 0.0f);
-    faceMaterial.set(uvOffsetAttribute);
-    faceMaterial.set(new BlendingAttribute(true, 1.0f));
-    faceMaterial.set(new DepthTestAttribute(0));
+
+    Material selectedMaterial = null;
+    if ((selectedMaterial = Utils.getMaterial(modelInstance, "ElephantFace")) != null)
+    {
+      selectedMaterial.set(uvOffsetAttribute);
+      selectedMaterial.set(new BlendingAttribute(true, 1.0f));
+      selectedMaterial.set(new DepthTestAttribute(0));
+    }
+
+    if ((selectedMaterial = Utils.getMaterial(modelInstance, "Cap")) != null)
+      Utils.activateMipMap(selectedMaterial, "models/cap.jpg", Texture.TextureFilter.MipMapLinearLinear);
 
     animationController.setAnimation(IDLE, -1);
     position = new Vector3();
