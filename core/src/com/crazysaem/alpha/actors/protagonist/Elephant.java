@@ -38,7 +38,7 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
 
   protected void finishLoading()
   {
-    super.finishLoading("Elephant", "ElephantFace", "Cap", "TShirt", "Trousers", "ElephantArmature");
+    super.finishLoading("Scouter", "Elephant", "ElephantFace", "Cap", "TShirt", "Trousers", "ElephantArmature");
 
     uOffsetStep = 144.0f / 512.0f;
     vOffsetStep = 219.0f / 512.0f;
@@ -54,6 +54,9 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
 
     if ((selectedMaterial = Utils.getMaterial(modelInstance, "Cap")) != null)
       Utils.activateMipMap(selectedMaterial, "models/cap.jpg", Texture.TextureFilter.MipMapLinearLinear);
+
+    if ((selectedMaterial = Utils.getMaterial(modelInstance, "Scouter")) != null)
+      selectedMaterial.set(new BlendingAttribute(true, 1.0f));
 
     animationController.setAnimation(IDLE, -1);
     position = new Vector3();
