@@ -1,7 +1,6 @@
 package com.crazysaem.alpha.picking;
 
 import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Intersector;
@@ -53,6 +52,7 @@ public abstract class StaticRenderable extends Renderable
 
   /**
    * Returns the intersection point of the last collisionTest
+   *
    * @return Vector3 intersection
    */
   public Vector3 getLastIntersection()
@@ -88,7 +88,7 @@ public abstract class StaticRenderable extends Renderable
         getIndices(mesh.getIndicesBuffer(), indices, nodePart.meshPart.indexOffset, destOffset, nodePart.meshPart.numVertices);
 
         int minIndex = indices[destOffset];
-        int maxIndex = indices[destOffset + nodePart.meshPart.numVertices - 1];
+        int maxIndex = getMax(indices, destOffset, indices.length);
         numVertices += maxIndex - minIndex + 1;
 
         destOffset += nodePart.meshPart.numVertices;
@@ -107,7 +107,7 @@ public abstract class StaticRenderable extends Renderable
         mesh = nodePart.meshPart.mesh;
         int vertexSize = mesh.getVertexSize() / 4;
         int minIndex = indices[indexOffset];
-        int maxIndex = indices[indexOffset + nodePart.meshPart.numVertices - 1];
+        int maxIndex = getMax(indices, indexOffset, indexOffset + nodePart.meshPart.numVertices);
         numVertices = maxIndex - minIndex + 1;
         getVertices(mesh.getVerticesBuffer(), vertices, vertexSize, minIndex, destOffset * 3, numVertices);
 
@@ -131,6 +131,18 @@ public abstract class StaticRenderable extends Renderable
         indexOffset += nodePart.meshPart.numVertices;
       }
     }
+  }
+
+  private short getMax(short[] array, int startIndex, int endIndex)
+  {
+    short max = 0;
+    for (int i = startIndex; i < endIndex; i++)
+    {
+      if (array[i] > max)
+        max = array[i];
+    }
+
+    return max;
   }
 
   private void getIndices(ShortBuffer indicesBuffer, short[] indices, int srcOffset, int destOffset, int count)

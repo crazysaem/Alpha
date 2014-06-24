@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.utils.Disposable;
 import com.crazysaem.alpha.actors.food.Carrot;
 import com.crazysaem.alpha.actors.furniture.ArmChair;
+import com.crazysaem.alpha.actors.furniture.Fridge;
 import com.crazysaem.alpha.actors.furniture.Shelf;
 import com.crazysaem.alpha.actors.house.Floor;
 import com.crazysaem.alpha.actors.house.House;
@@ -73,6 +74,7 @@ public class World implements Disposable
 
     Carrot carrot = new Carrot();
     ArmChair armChair = new ArmChair();
+    Fridge fridge = new Fridge();
     Walls walls = new Walls();
     Floor floor = new Floor();
     Sky sky = new Sky();
@@ -88,6 +90,7 @@ public class World implements Disposable
     renderables.add(elephant);
     renderables.add(carrot);
     renderables.add(armChair);
+    renderables.add(fridge);
     renderables.add(sky);
     renderables.add(ground);
     renderables.add(floor);
@@ -97,6 +100,7 @@ public class World implements Disposable
     StaticTargetPool staticTargetPoolGraph = new StaticTargetPool();
     staticTargetPoolGraph.add(new StaticTarget(walls, EventTarget.HOUSE));
     staticTargetPoolGraph.add(new StaticTarget(armChair, EventTarget.ARMCHAIR));
+    staticTargetPoolGraph.add(new StaticTarget(fridge, EventTarget.FRIDGE));
 
     aStarGraph = new AStarGraph(staticTargetPoolGraph);
     Map<EventTarget, AstarPosition> astarPositions = new HashMap<EventTarget, AstarPosition>();

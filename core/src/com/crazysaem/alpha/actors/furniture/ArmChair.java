@@ -12,15 +12,6 @@ import com.crazysaem.alpha.picking.StaticRenderable;
 public class ArmChair extends StaticRenderable implements EventHandler, AstarPosition
 {
   @Override
-  public void render(RenderBatch renderBatch)
-  {
-    if (loading)
-      return;
-
-    super.render(renderBatch);
-  }
-
-  @Override
   public void handleEvent(Event event)
   {
     System.out.println("ARMCHAIR recieved event: " + event.getAction());

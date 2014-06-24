@@ -8,12 +8,14 @@ public enum EventTarget
   ASTAR_GROUND,
   ASTAR_FLOOR,
   ASTAR_ARMCHAIR,
+  ASTAR_FRIDGE,
 
   ELEPHANT,
   CARROT,
   HOUSE,
   SHELF,
   ARMCHAIR,
+  FRIDGE,
   GROUND,
   NONE
 }
