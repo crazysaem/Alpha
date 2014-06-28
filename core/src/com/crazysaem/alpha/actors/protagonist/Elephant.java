@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.events.Event;
 import com.crazysaem.alpha.events.EventHandler;
 import com.crazysaem.alpha.events.MoveEvent;
-import com.crazysaem.alpha.graphics.Utils;
+import com.crazysaem.alpha.graphics.RenderUtils;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.pathfinding.AstarPosition;
 import com.crazysaem.alpha.pathfinding.PositionPerTime;
@@ -44,18 +44,18 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
     vOffsetStep = 219.0f / 512.0f;
     uvOffsetAttribute = new UVOffsetAttribute(0.0f, 0.0f);
 
-    Material selectedMaterial = null;
-    if ((selectedMaterial = Utils.getMaterial(modelInstance, "ElephantFace")) != null)
+    Material selectedMaterial;
+    if ((selectedMaterial = RenderUtils.getMaterial(modelInstance, "ElephantFace")) != null)
     {
       selectedMaterial.set(uvOffsetAttribute);
       selectedMaterial.set(new BlendingAttribute(true, 1.0f));
       selectedMaterial.set(new DepthTestAttribute(0));
     }
 
-    if ((selectedMaterial = Utils.getMaterial(modelInstance, "Cap")) != null)
-      Utils.activateMipMap(selectedMaterial, "models/cap.jpg", Texture.TextureFilter.MipMapLinearLinear);
+    if ((selectedMaterial = RenderUtils.getMaterial(modelInstance, "Cap")) != null)
+      RenderUtils.activateMipMap(selectedMaterial, "models/cap.jpg", Texture.TextureFilter.MipMapLinearLinear);
 
-    if ((selectedMaterial = Utils.getMaterial(modelInstance, "Scouter")) != null)
+    if ((selectedMaterial = RenderUtils.getMaterial(modelInstance, "Scouter")) != null)
       selectedMaterial.set(new BlendingAttribute(true, 1.0f));
 
     animationController.setAnimation(IDLE, -1);

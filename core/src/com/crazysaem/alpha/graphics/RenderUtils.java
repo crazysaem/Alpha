@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 /**
  * Created by crazysaem on 21.06.2014.
  */
-public class Utils
+public class RenderUtils
 {
   //TODO: This is a terrible way to activateMipMap mipmaps for the ground texture. Fix this
   public static void activateMipMap(Material material, String fileName, Texture.TextureFilter textureFilter)

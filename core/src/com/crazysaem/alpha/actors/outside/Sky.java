@@ -10,12 +10,12 @@ import com.crazysaem.alpha.graphics.Renderable;
  */
 public class Sky extends Renderable
 {
-  private Environment skyEnvironment;
+  private Environment environment;
 
   public Sky()
   {
-    skyEnvironment = new Environment();
-    skyEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1.0f, 1.0f, 1.0f, 1f));
+    environment = new Environment();
+    environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1.0f, 1.0f, 1.0f, 1f));
   }
 
   @Override
@@ -30,6 +30,6 @@ public class Sky extends Renderable
     if (loading)
       return;
 
-    renderBatch.render(modelInstance, skyEnvironment);
+    renderBatch.render(modelInstance, environment);
   }
 }
