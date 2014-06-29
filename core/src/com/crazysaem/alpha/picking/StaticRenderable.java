@@ -66,20 +66,9 @@ public abstract class StaticRenderable extends Renderable
   protected void finishLoading(boolean useAnimationController, String... rootNodeIds)
   {
     super.finishLoading(useAnimationController, rootNodeIds);
-
-    //If model has a parented armature, the modelInstance is rotated differently as normal
-    //TODO: fixme
-    if (hasArmature)
-    {
-      //Matrix4 transform = modelInstance.transform.cpy();
-      //modelInstance.transform.rotate(Vector3.X, -90.0f);
-      modelInstance.calculateBoundingBox(boundingBox);
-      //modelInstance.transform = transform;
-    }
-    else
-    {
-      modelInstance.calculateBoundingBox(boundingBox);
-    }
+    
+    boundingBox.clr();
+    boundingBox.inf();
 
     int numIndices = 0;
     int numVertices = 0;
@@ -182,6 +171,8 @@ public abstract class StaticRenderable extends Renderable
       vertices[destOffset + i * 3 + 0] = vTemp[0];
       vertices[destOffset + i * 3 + 1] = vTemp[2];
       vertices[destOffset + i * 3 + 2] = -vTemp[1];
+
+      boundingBox.ext(vTemp[0], vTemp[2], -vTemp[1]);
     }
     verticesBuffer.position(pos);
   }
