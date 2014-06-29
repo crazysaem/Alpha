@@ -15,7 +15,7 @@ import com.crazysaem.alpha.picking.StaticRenderable;
 public class Fridge extends StaticRenderable implements AnimationController.AnimationListener
 {
   private Environment environment;
-  private String[] animationIDs = {"fridge_open", "fridge_tray", "fridge_tray", "fridge_freezer"};
+  private String[] animationIDs = {"fridge_open", "fridge_tray", "fridge_tray", "fridge_freezer", "fridge_freezer", "fridge_open"};
   private int currentAnimation = 0;
 
   public Fridge()
@@ -43,9 +43,9 @@ public class Fridge extends StaticRenderable implements AnimationController.Anim
   public void onEnd(AnimationController.AnimationDesc animation)
   {
     currentAnimation++;
-    currentAnimation = currentAnimation % 4;
+    currentAnimation = currentAnimation % 6;
 
-    if (currentAnimation == 2)
+    if (currentAnimation == 2 || currentAnimation == 4 || currentAnimation == 5)
       animationController.queue(animationIDs[currentAnimation], 1, -1.0f, this, 0.05f);
     else
       animationController.queue(animationIDs[currentAnimation], 1, 1.0f, this, 0.05f);
