@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
@@ -21,6 +22,7 @@ public abstract class StaticRenderable extends Renderable
   private float[] vertices;
   private short[] indices;
   private Vector3 intersection = new Vector3();
+  protected boolean hasArmature = false;
 
   public float collisionTest(Ray ray)
   {
@@ -65,7 +67,19 @@ public abstract class StaticRenderable extends Renderable
   {
     super.finishLoading(useAnimationController, rootNodeIds);
 
-    modelInstance.calculateBoundingBox(boundingBox);
+    //If model has a parented armature, the modelInstance is rotated differently as normal
+    //TODO: fixme
+    if (hasArmature)
+    {
+      //Matrix4 transform = modelInstance.transform.cpy();
+      //modelInstance.transform.rotate(Vector3.X, -90.0f);
+      modelInstance.calculateBoundingBox(boundingBox);
+      //modelInstance.transform = transform;
+    }
+    else
+    {
+      modelInstance.calculateBoundingBox(boundingBox);
+    }
 
     int numIndices = 0;
     int numVertices = 0;

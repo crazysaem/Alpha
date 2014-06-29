@@ -1,0 +1,141 @@
+diff --git a/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java b/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java
+index c29b14c..15e5d6d 100644
+--- a/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java
++++ b/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java
+@@ -94,6 +94,7 @@ public class DefaultShader extends BaseShader {
+ 		public final static Uniform normalTexture = new Uniform("u_normalTexture", TextureAttribute.Normal);
+ 		public final static Uniform alphaTest = new Uniform("u_alphaTest", FloatAttribute.AlphaTest);
+     public final static Uniform uvOffset = new Uniform("u_uvOffset", UVOffsetAttribute.Type);
++    public final static Uniform partialColor = new Uniform("u_partialColor", PartialColorAttribute.Type);
+ 
+ 		public final static Uniform ambientCube = new Uniform("u_ambientCubemap");
+ 		public final static Uniform dirLights = new Uniform("u_dirLights");
+@@ -446,7 +447,8 @@ public class DefaultShader extends BaseShader {
+ 	public final int u_reflectionColor;
+ 	public final int u_normalTexture;
+ 	public final int u_alphaTest;
+-  	public final int u_uvOffset;
++  public final int u_uvOffset;
++  public final int u_partialColor;
+ 	// Lighting uniforms
+ 	protected final int u_ambientCubemap;
+ 	protected final int u_environmentCubemap;
+@@ -555,6 +557,7 @@ public class DefaultShader extends BaseShader {
+ 		u_normalTexture = register(Inputs.normalTexture, Setters.normalTexture);
+ 		u_alphaTest = register(Inputs.alphaTest);
+     u_uvOffset = register(Inputs.uvOffset);
++    u_partialColor = register(Inputs.partialColor);
+ 
+ 		u_ambientCubemap = lighting ? register(Inputs.ambientCube, new Setters.ACubemap(config.numDirectionalLights,
+ 			config.numPointLights)) : -1;
+@@ -644,6 +647,8 @@ public class DefaultShader extends BaseShader {
+ 			prefix += "#define " + FloatAttribute.AlphaTestAlias + "Flag\n";
+ 	  if ((mask & UVOffsetAttribute.Type) == UVOffsetAttribute.Type)
+       prefix += "#define " + UVOffsetAttribute.UVOffsetAlias + "Flag\n";
++    if ((mask & PartialColorAttribute.Type) == PartialColorAttribute.Type)
++      prefix += "#define " + PartialColorAttribute.PartialColorAlias + "Flag\n";
+ 		if (renderable.bones != null && config.numBones > 0) prefix += "#define numBones " + config.numBones + "\n";
+ 		return prefix;
+ 	}
+@@ -735,6 +740,9 @@ public class DefaultShader extends BaseShader {
+       } else if ((t & UVOffsetAttribute.Type) == UVOffsetAttribute.Type) {
+         UVOffsetAttribute uv = (UVOffsetAttribute) attr;
+         set(u_uvOffset, uv.u, uv.v);
++      } else if ((t & PartialColorAttribute.Type) == PartialColorAttribute.Type) {
++        PartialColorAttribute partialColor = (PartialColorAttribute) attr;
++        set(u_partialColor, partialColor.x, partialColor.y);
+ 			} else if (!config.ignoreUnimplemented) throw new GdxRuntimeException("Unknown material attribute: " + attr.toString());
+ 		}
+ 
+diff --git a/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl b/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl
+index 7d86dcf..2896db0 100644
+--- a/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl
++++ b/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl
+@@ -37,6 +37,10 @@ varying MED vec2 v_texCoords0;
+ uniform vec4 u_diffuseColor;
+ #endif
+ 
++#ifdef partialColorFlag
++uniform vec2 u_partialColor;
++#endif //partialColorFlag
++
+ #ifdef diffuseTextureFlag
+ uniform sampler2D u_diffuseTexture;
+ #endif
+@@ -105,7 +109,14 @@ void main() {
+ 	#if defined(diffuseTextureFlag) && defined(diffuseColorFlag) && defined(colorFlag)
+ 		vec4 diffuse = texture2D(u_diffuseTexture, v_texCoords0) * u_diffuseColor * v_color;
+ 	#elif defined(diffuseTextureFlag) && defined(diffuseColorFlag)
+-		vec4 diffuse = texture2D(u_diffuseTexture, v_texCoords0) * u_diffuseColor;
++		vec4 diffuse = texture2D(u_diffuseTexture, v_texCoords0);
++		#ifdef partialColorFlag
++		if (v_texCoords0.x < u_partialColor.x) {
++		  diffuse = diffuse * u_diffuseColor;
++    }
++    #else
++      diffuse = diffuse * u_diffuseColor;
++    #endif
+ 	#elif defined(diffuseTextureFlag) && defined(colorFlag)
+ 		vec4 diffuse = texture2D(u_diffuseTexture, v_texCoords0) * v_color;
+ 	#elif defined(diffuseTextureFlag)
+diff --git a/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl b/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl
+index f35a362..54e140e 100644
+--- a/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl
++++ b/gdx/src/com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl
+@@ -185,9 +185,9 @@ void main() {
+ 	#endif // textureFlag
+ 
+ 	#ifdef UVOffsetFlag
+-  		v_texCoords0.x += u_uvOffset.x;
+-  		v_texCoords0.y += u_uvOffset.y;
+-  	#endif // UVOffsetFlag
++    v_texCoords0.x += u_uvOffset.x;
++    v_texCoords0.y += u_uvOffset.y;
++  #endif // UVOffsetFlag
+ 	
+ 	#if defined(colorFlag)
+ 		v_color = a_color;
+ .../g3d/attributes/PartialColorAttribute.java      | 35 ++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/gdx/src/com/badlogic/gdx/graphics/g3d/attributes/PartialColorAttribute.java b/gdx/src/com/badlogic/gdx/graphics/g3d/attributes/PartialColorAttribute.java
+new file mode 100644
+index 0000000..9c017e8
+--- /dev/null
++++ b/gdx/src/com/badlogic/gdx/graphics/g3d/attributes/PartialColorAttribute.java
+@@ -0,0 +1,35 @@
++package com.badlogic.gdx.graphics.g3d.attributes;
++
++import com.badlogic.gdx.graphics.g3d.Attribute;
++
++/**
++ * Created by crazysaem on 29.06.2014.
++ */
++public class PartialColorAttribute extends Attribute
++{
++  public static final String PartialColorAlias = "partialColor";
++  public static final long Type = register(PartialColorAlias);
++
++  public float x;
++  public float y;
++
++  public PartialColorAttribute(float x, float y)
++  {
++    super(Type);
++
++    this.x = x;
++    this.y = y;
++  }
++
++  @Override
++  public Attribute copy()
++  {
++    return new PartialColorAttribute(x, y);
++  }
++
++  @Override
++  protected boolean equals(Attribute other)
++  {
++    return ((PartialColorAttribute)other).x == x && ((PartialColorAttribute)other).y == y;
++  }
++}

@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.PartialColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.RenderUtils;
 import com.crazysaem.alpha.picking.StaticRenderable;
@@ -20,6 +22,8 @@ public class Fridge extends StaticRenderable implements AnimationController.Anim
 
   public Fridge()
   {
+    hasArmature = true;
+
     environment = new Environment();
     environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1.0f, 1.0f, 1.0f, 1.0f));
   }
@@ -33,10 +37,22 @@ public class Fridge extends StaticRenderable implements AnimationController.Anim
     if ((selectedMaterial = RenderUtils.getMaterial(modelInstance, "Fridge")) != null)
     {
       selectedMaterial.set(new ColorAttribute(ColorAttribute.Diffuse, 192.0f / 256.0f, 237.0f / 256.0f, 97.0f / 256.0f, 1.0f));
+      selectedMaterial.set(new PartialColorAttribute(503.0f / 1024.0f, 0.0f));
     }
+
+    //modelInstance.transform.rotate(Vector3.X, -90.0f);
 
     animationController.setAnimation(animationIDs[0], 1, 1.0f, this);
     currentAnimation = 0;
+  }
+
+  @Override
+  public void render(RenderBatch renderBatch)
+  {
+    if (loading)
+      return;
+
+    renderBatch.render(modelInstance, environment);
   }
 
   @Override
