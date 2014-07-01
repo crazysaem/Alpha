@@ -15,6 +15,7 @@ public class AStarAlgorithm implements EventHandler
   private HashMap<Node, Node> closedList;
   private HashMap<Node, Node> openList;
   private TreeSet<Node> openListFSorted;
+  private Stack<Node> backedupNodes;
 
   public AStarAlgorithm(AStarGraph aStarGraph, EventManager eventManager, Map<EventTarget, AstarPosition> astarPositions)
   {
@@ -25,6 +26,7 @@ public class AStarAlgorithm implements EventHandler
     closedList = new HashMap<Node, Node>();
     openList = new HashMap<Node, Node>();
     openListFSorted = new TreeSet<Node>(new NodeScoreComparator());
+    backedupNodes = new Stack<Node>();
   }
 
   @Override
@@ -41,16 +43,16 @@ public class AStarAlgorithm implements EventHandler
         case ASTAR_GROUND:
         case ASTAR_FLOOR:
           //TODO: get closest Node position for given hitPosition
-          int goalX = (int) hitEvent.getHitPos().x;
-          int goalZ = (int) hitEvent.getHitPos().z;
-          path = calculatePath((int) elephantPosition.getX(), (int) elephantPosition.getZ(), goalX, goalZ);
+          float goalX = hitEvent.getHitPos().x;
+          float goalZ = hitEvent.getHitPos().z;
+          path = calculatePath(elephantPosition.getX(), elephantPosition.getZ(), goalX, goalZ);
           if (path != null)
             eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "WALKING", path));
           break;
 
         case ASTAR_ARMCHAIR:
           AstarPosition armChairGoal = astarPositions.get(EventTarget.ARMCHAIR);
-          path = calculatePath((int) elephantPosition.getX(), (int) elephantPosition.getZ(), (int) armChairGoal.getX(), (int) armChairGoal.getZ());
+          path = calculatePath(elephantPosition.getX(), elephantPosition.getZ(), armChairGoal.getX(), armChairGoal.getZ());
           if (path != null)
             eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "SITTING", path));
           break;
@@ -80,17 +82,100 @@ public class AStarAlgorithm implements EventHandler
     }
   }
 
-  public Path calculatePath(int startX, int startZ, int goalX, int goalZ)
+  public void backupNodes(int x, int z)
   {
-    if (startX == goalX && startZ == goalZ)
+    if (aStarGraph.getNode(x + 0, z + 0) != null)
+      backedupNodes.add(aStarGraph.getNode(x + 0, z + 0).TR);
+    if (aStarGraph.getNode(x + 1, z + 0) != null)
+      backedupNodes.add(aStarGraph.getNode(x + 1, z + 0).TL);
+    if (aStarGraph.getNode(x + 0, z + 1) != null)
+      backedupNodes.add(aStarGraph.getNode(x + 0, z + 1).BR);
+    if (aStarGraph.getNode(x + 1, z + 1) != null)
+      backedupNodes.add(aStarGraph.getNode(x + 1, z + 1).BL);
+  }
+
+  public void restoreNodes(int x, int z)
+  {
+    if (aStarGraph.getNode(x + 1, z + 1) != null)
+      aStarGraph.getNode(x + 1, z + 1).BL = backedupNodes.pop();
+    if (aStarGraph.getNode(x + 0, z + 1) != null)
+      aStarGraph.getNode(x + 0, z + 1).BR = backedupNodes.pop();
+    if (aStarGraph.getNode(x + 1, z + 0) != null)
+      aStarGraph.getNode(x + 1, z + 0).TL = backedupNodes.pop();
+    if (aStarGraph.getNode(x + 0, z + 0) != null)
+      aStarGraph.getNode(x + 0, z + 0).TR = backedupNodes.pop();
+  }
+
+  public void setNodeFloat(int x, int z, Node node)
+  {
+    Node n;
+    if ((n = aStarGraph.getNode(x + 0, z + 0)) != null)
+    {
+      n.TR = node;
+      node.BL = n;
+    }
+    if ((n = aStarGraph.getNode(x + 1, z + 0)) != null)
+    {
+      n.TL = node;
+      node.BR = n;
+    }
+    if ((n = aStarGraph.getNode(x + 0, z + 1)) != null)
+    {
+      n.BR = node;
+      node.TL = n;
+    }
+    if ((n = aStarGraph.getNode(x + 1, z + 1)) != null)
+    {
+      n.BL = node;
+      node.TR = n;
+    }
+  }
+
+  public void cleanup(int startXInt, int startZInt, int goalXInt, int goalZInt)
+  {
+    restoreNodes(goalXInt, goalZInt);
+    restoreNodes(startXInt, startZInt);
+  }
+
+  public boolean isPosAvailable(float x_, float z_)
+  {
+    int x = (int) x_;
+    int z = (int) z_;
+
+    if (aStarGraph.getNode(x + 0, z + 0) != null && aStarGraph.getNode(x + 0, z + 0).TR != null &&
+        aStarGraph.getNode(x + 1, z + 0) != null && aStarGraph.getNode(x + 1, z + 0).TL != null &&
+        aStarGraph.getNode(x + 0, z + 1) != null && aStarGraph.getNode(x + 0, z + 1).BR != null &&
+        aStarGraph.getNode(x + 1, z + 1) != null && aStarGraph.getNode(x + 1, z + 1).BL != null)
+      return true;
+
+    return false;
+  }
+
+  public Path calculatePath(float startX, float startZ, float goalX, float goalZ)
+  {
+    if (startX == goalX && startZ == goalZ || !isPosAvailable(goalX, goalZ))
       return null;
 
     openList.clear();
     openListFSorted.clear();
     closedList.clear();
 
+    Node startingNode = new Node(startX, startZ);
+    startingNode.isSpecial = true;
+    int startXInt = (int) startX;
+    int startZInt = (int) startZ;
+    backupNodes(startXInt, startZInt);
+    setNodeFloat(startXInt, startZInt, startingNode);
+
+    Node goalNode = new Node(goalX, goalZ);
+    goalNode.isSpecial = true;
+    int goalXInt = (int) goalX;
+    int goalZInt = (int) goalZ;
+    backupNodes(goalXInt, goalZInt);
+    setNodeFloat(goalXInt, goalZInt, goalNode);
+
     //Get starting Node:
-    Node startingNode = aStarGraph.getNode(startX, startZ);
+    //Node startingNode = aStarGraph.getNode(startX, startZ);
     startingNode.parent = null;
     startingNode.f = 0;
     openList.put(startingNode, startingNode);
@@ -105,20 +190,30 @@ public class AStarAlgorithm implements EventHandler
       List<Node> adjacentNodes = getAdjacentNodes(q);
       for (Node successor : adjacentNodes)
       {
-        if (successor.x == goalX && successor.z == goalZ)
+        if (successor == goalNode)
         {
           //We found the goal node! Now calculate the path via the parents.
           successor.parent = q;
+          cleanup(startXInt, startZInt, goalXInt, goalZInt);
           return new Path(successor);
         }
 
         if (!closedList.containsKey(successor))
         {
           int g = 14;
-          if (successor.x == q.x || successor.z == q.z)
-            g = 10;
+          if (successor.isSpecial || q.isSpecial)
+          {
+            float xDiff = successor.x - q.x;
+            float zDiff = successor.z - q.z;
+            g = (int) Math.sqrt(xDiff * xDiff + zDiff + zDiff);
+          }
+          else
+          {
+            if (successor.x == q.x || successor.z == q.z)
+              g = 10;
+          }
 
-          successor.h = (Math.abs(successor.x - goalX) + Math.abs(successor.z - goalZ)) * 10;
+          successor.h = (int) ((Math.abs(successor.x - goalX)) + Math.abs(successor.z - goalZ)) * 10;
 
           if (openList.containsKey(successor))
           {
@@ -146,6 +241,7 @@ public class AStarAlgorithm implements EventHandler
     }
 
     //No route was found
+    cleanup(startXInt, startZInt, goalXInt, goalZInt);
     return null;
   }
 

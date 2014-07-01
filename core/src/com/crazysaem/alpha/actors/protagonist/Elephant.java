@@ -27,7 +27,7 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
   private Vector3 position, deltaPosition, initialDirection, direction, upVector;
   private PositionPerTime positionPerTime;
   private Vector3 movePosition;
-  private float moveTime, faceAnimationTime;
+  private float faceAnimationTime;
   private boolean isMoving;
   private float directionAngle;
   private ElephantPose currentPose, nextPose;
@@ -123,8 +123,7 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
         return;
       }
 
-      moveTime += delta;
-      if (positionPerTime.getPosition(2.0f, moveTime, movePosition))
+      if (positionPerTime.getPosition(2.0f, delta, movePosition))
       {
         isMoving = false;
         deltaPosition.x = 0.0f;
@@ -177,7 +176,6 @@ public class Elephant extends Renderable implements EventHandler, AstarPosition,
       positionPerTime = moveEvent.getPositionPerTime();
       if (currentPose == ElephantPose.STANDING)
         animationController.setAnimation(WALK, -1);
-      moveTime = 0.0f;
       if (moveEvent.getAction() == "SITTING")
       {
         nextPose = ElephantPose.SITTING;

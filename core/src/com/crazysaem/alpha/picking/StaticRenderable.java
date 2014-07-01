@@ -66,7 +66,7 @@ public abstract class StaticRenderable extends Renderable
   protected void finishLoading(boolean useAnimationController, String... rootNodeIds)
   {
     super.finishLoading(useAnimationController, rootNodeIds);
-    
+
     boundingBox.clr();
     boundingBox.inf();
 

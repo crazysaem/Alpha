@@ -6,8 +6,8 @@ package com.crazysaem.alpha.pathfinding;
 public class Node
 {
   //Position
-  public int x;
-  public int z;
+  public float x;
+  public float z;
 
   //Connection to other Nodes
   public Node
@@ -22,7 +22,15 @@ public class Node
   public int h;
   public int f;
 
+  public boolean isSpecial;
+
   protected Node() {}
+
+  public Node(float x, float z)
+  {
+    this.x = x;
+    this.z = z;
+  }
 
   public Node(int x, int z)
   {

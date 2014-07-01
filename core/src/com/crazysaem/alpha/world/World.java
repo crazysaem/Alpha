@@ -130,7 +130,7 @@ public class World implements Disposable
   {
     //All Models have been initialized here
     aStarGraph.recalculateGraph(-19, -19, 19, 19);
-    aStarGraph.createDebugRenderGraphics();
+    //aStarGraph.createDebugRenderGraphics();
 
     finishedLoading = true;
   }
@@ -180,7 +180,7 @@ public class World implements Disposable
     renderBatch.flush();
     shelf.render(renderBatch);
 
-    aStarGraph.debugRender(renderBatch);
+    //aStarGraph.debugRender(renderBatch);
     renderBatch.end();
 
     hud.render();

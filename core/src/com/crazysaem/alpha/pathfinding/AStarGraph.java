@@ -143,6 +143,9 @@ public class AStarGraph
 
   public Node getNode(int x, int z)
   {
+    if ((x > x1) || (z > z1) || (x < x0) || (z < z0))
+      return null;
+
     return nodes[xShift + x][zShift + z];
   }
 
@@ -190,7 +193,7 @@ public class AStarGraph
             sphere.transform.setToTranslation(x, 1.0f, z);
             debugModelInstances.add(sphere);
           }
-
+          /*
           if (node.L != null)
           {
             arrow = new ModelInstance(arrowModelL);
@@ -238,7 +241,7 @@ public class AStarGraph
             arrow = new ModelInstance(arrowModelBL);
             arrow.transform.setToTranslation(x, 0.5f, z);
             debugModelInstances.add(arrow);
-          }
+          }*/
         }
       }
     }

@@ -10,13 +10,46 @@ import java.util.List;
  */
 public class Path implements PositionPerTime
 {
+  class PathPoint
+  {
+    public float x, z;
+    public float distance;
+    public PathPoint nextPathPoint;
+
+    public PathPoint(Vector3 position)
+    {
+      x = position.x;
+      z = position.z;
+    }
+
+    public void calculateDistance()
+    {
+      distance = (float)Math.sqrt((float)Math.pow(x - nextPathPoint.x, 2) + (float)Math.pow(z - nextPathPoint.z, 2));
+    }
+  }
+
   private List<Vector3> positions;
+  private PathPoint currentPathPoint;
+  private float time;
 
   public Path(Node goalNode)
   {
     positions = new ArrayList<Vector3>();
-
     addPositionRecursively(goalNode);
+
+    Object[] positionsArray = positions.toArray();
+
+    PathPoint startPoint = new PathPoint((Vector3) positionsArray[0]);
+    PathPoint pathPoint = startPoint;
+
+    for (int i = 0; i < positionsArray.length - 1; i++)
+    {
+      pathPoint.nextPathPoint = new PathPoint((Vector3) positionsArray[i + 1]);
+      pathPoint.calculateDistance();
+      pathPoint = pathPoint.nextPathPoint;
+    }
+
+    currentPathPoint = startPoint;
   }
 
   private void addPositionRecursively(Node n)
@@ -31,33 +64,36 @@ public class Path implements PositionPerTime
     positions.add(new Vector3(n.x, 0.0f, n.z));
   }
 
-  private void addAdditionalPosition(Vector3 position)
-  {
-    positions.add(position);
-  }
-
   @Override
-  public boolean getPosition(float speed, float time, Vector3 position)
+  public boolean getPosition(float speed, float delta, Vector3 position)
   {
+    time += delta;
+
     float interpolation = speed * time;
-    int pos = (int)interpolation;
-    if (pos >= positions.size() - 1)
+
+    if (currentPathPoint.distance < interpolation)
     {
-      Vector3 posFromArray = positions.get(positions.size() - 1);
-      position.x = posFromArray.x;
-      position.z = posFromArray.z;
+      time -= currentPathPoint.distance / speed;
+      interpolation = speed * time;
+      currentPathPoint = currentPathPoint.nextPathPoint;
+    }
+
+    if (currentPathPoint.nextPathPoint == null)
+    {
+      position.x = currentPathPoint.x;
+      position.z = currentPathPoint.z;
 
       return true;
     }
 
-    Vector3 posFromArray = positions.get(pos);
-    Vector3 posFromArray2 = positions.get(pos + 1);
-    float interpolationDelta = interpolation - pos;
-    float xDelta = (posFromArray2.x - posFromArray.x) * interpolationDelta;
-    float zDelta = (posFromArray2.z - posFromArray.z) * interpolationDelta;
+    float inter = interpolation / currentPathPoint.distance;
+    if (inter > 1.0f)
+      inter = 1.0f;
+    float xDelta = (currentPathPoint.nextPathPoint.x - currentPathPoint.x) * inter;
+    float zDelta = (currentPathPoint.nextPathPoint.z - currentPathPoint.z) * inter;
 
-    position.x = posFromArray.x + xDelta;
-    position.z = posFromArray.z + zDelta;
+    position.x = currentPathPoint.x + xDelta;
+    position.z = currentPathPoint.z + zDelta;
 
     return false;
   }
