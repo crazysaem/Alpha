@@ -10,7 +10,6 @@ import com.crazysaem.alpha.actors.furniture.ArmChair;
 import com.crazysaem.alpha.actors.furniture.Fridge;
 import com.crazysaem.alpha.actors.furniture.Shelf;
 import com.crazysaem.alpha.actors.house.Floor;
-import com.crazysaem.alpha.actors.house.House;
 import com.crazysaem.alpha.actors.house.Walls;
 import com.crazysaem.alpha.actors.outside.Ground;
 import com.crazysaem.alpha.actors.outside.Sky;
@@ -21,9 +20,9 @@ import com.crazysaem.alpha.graphics.CameraController;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.hud.HUD;
-import com.crazysaem.alpha.pathfinding.AStarAlgorithm;
+import com.crazysaem.alpha.pathfinding.AStarPathFinding;
 import com.crazysaem.alpha.pathfinding.AStarGraph;
-import com.crazysaem.alpha.pathfinding.AstarPosition;
+import com.crazysaem.alpha.pathfinding.AStarPosition;
 import com.crazysaem.alpha.picking.RayPicking;
 import com.crazysaem.alpha.picking.StaticTarget;
 import com.crazysaem.alpha.picking.StaticTargetPool;
@@ -103,13 +102,13 @@ public class World implements Disposable
     staticTargetPoolGraph.add(new StaticTarget(fridge, EventTarget.FRIDGE));
 
     aStarGraph = new AStarGraph(staticTargetPoolGraph);
-    Map<EventTarget, AstarPosition> astarPositions = new HashMap<EventTarget, AstarPosition>();
+    Map<EventTarget, AStarPosition> astarPositions = new HashMap<EventTarget, AStarPosition>();
     astarPositions.put(EventTarget.ELEPHANT, elephant);
     astarPositions.put(EventTarget.ARMCHAIR, armChair);
-    AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(aStarGraph, eventManager, astarPositions);
-    eventManager.registerEventHandler(EventTarget.ASTAR_GROUND, aStarAlgorithm);
-    eventManager.registerEventHandler(EventTarget.ASTAR_FLOOR, aStarAlgorithm);
-    eventManager.registerEventHandler(EventTarget.ASTAR_ARMCHAIR, aStarAlgorithm);
+    AStarPathFinding aStarPathFinding = new AStarPathFinding(aStarGraph, eventManager, astarPositions);
+    eventManager.registerEventHandler(EventTarget.ASTAR_GROUND, aStarPathFinding);
+    eventManager.registerEventHandler(EventTarget.ASTAR_FLOOR, aStarPathFinding);
+    eventManager.registerEventHandler(EventTarget.ASTAR_ARMCHAIR, aStarPathFinding);
 
     StaticTargetPool staticTargetPoolInteraction = new StaticTargetPool();
     staticTargetPoolInteraction.add(new StaticTarget(ground, EventTarget.ASTAR_GROUND));

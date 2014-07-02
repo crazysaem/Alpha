@@ -12,13 +12,13 @@ import com.crazysaem.alpha.events.EventHandler;
 import com.crazysaem.alpha.events.MoveEvent;
 import com.crazysaem.alpha.graphics.RenderUtils;
 import com.crazysaem.alpha.graphics.Renderable;
-import com.crazysaem.alpha.pathfinding.AstarPosition;
+import com.crazysaem.alpha.pathfinding.AStarPosition;
 import com.crazysaem.alpha.pathfinding.PositionPerTime;
 
 /**
  * Created by crazysaem on 23.05.2014.
  */
-public class Elephant extends Renderable implements EventHandler, AstarPosition, AnimationController.AnimationListener
+public class Elephant extends Renderable implements EventHandler, AStarPosition, AnimationController.AnimationListener
 {
   private static final String IDLE = "idle";
   private static final String WALK = "walk";

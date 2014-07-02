@@ -134,6 +134,60 @@ public class AStarGraph
         }
       }
     }
+
+    //Calculate walkable area-rectangles:
+    List<WalkableArea> walkableAreas = new ArrayList<WalkableArea>();
+    getAllWalkableAreas(walkableAreas, x0, z0, x1, z1);
+  }
+
+  private void getAllWalkableAreas(List<WalkableArea> walkableAreas, int x0, int z0, int x1, int z1)
+  {
+    int xEnd = x0, zEnd = z0;
+
+    if (isAreaRectWalkable(x0, z0))
+    {
+      //while (x0 <= x1 && z0 <= z1)
+      while (true)
+      {
+        xEnd = getXLineEnd(x0, zEnd, x1);
+        zEnd++;
+
+        while (getXLineEnd(x0, zEnd, x1) == xEnd)
+          zEnd++;
+
+        walkableAreas.add(new WalkableArea(x0, z0, xEnd, zEnd));
+        break;
+      }
+
+      if (xEnd < x1)
+        getAllWalkableAreas(walkableAreas, xEnd, z0, x1, z1);
+      if (zEnd < z1)
+        getAllWalkableAreas(walkableAreas, x0, zEnd, xEnd, z1);
+    }
+    else
+    {
+      if (x0 + 1 < x1)
+        getAllWalkableAreas(walkableAreas, x0 + 1, z0, x1, z1);
+
+      if (z0 + 1 < z1)
+        getAllWalkableAreas(walkableAreas, x0, z0 + 1, x0 + 1, z1);
+    }
+  }
+
+  private int getXLineEnd(int x, int z, int xMax)
+  {
+    while (isAreaRectWalkable(x, z) && x < xMax)
+      x++;
+
+    return x;
+  }
+
+  private boolean isAreaRectWalkable(int xTL, int zTL)
+  {
+    if (getNode(xTL, zTL) != null && getNode(xTL + 1, zTL) != null && getNode(xTL, zTL + 1) != null && getNode(xTL + 1, zTL + 1) != null)
+      return true;
+
+    return false;
   }
 
   private void setNode(Node node, int x, int z)

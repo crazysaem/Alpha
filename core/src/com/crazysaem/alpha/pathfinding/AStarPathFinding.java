@@ -7,17 +7,17 @@ import java.util.*;
 /**
  * Created by crazysaem on 14.06.2014.
  */
-public class AStarAlgorithm implements EventHandler
+public class AStarPathFinding implements EventHandler
 {
   private AStarGraph aStarGraph;
   private EventManager eventManager;
-  private Map<EventTarget, AstarPosition> astarPositions;
+  private Map<EventTarget, AStarPosition> astarPositions;
   private HashMap<Node, Node> closedList;
   private HashMap<Node, Node> openList;
   private TreeSet<Node> openListFSorted;
   private Stack<Node> backedupNodes;
 
-  public AStarAlgorithm(AStarGraph aStarGraph, EventManager eventManager, Map<EventTarget, AstarPosition> astarPositions)
+  public AStarPathFinding(AStarGraph aStarGraph, EventManager eventManager, Map<EventTarget, AStarPosition> astarPositions)
   {
     this.aStarGraph = aStarGraph;
     this.eventManager = eventManager;
@@ -36,7 +36,7 @@ public class AStarAlgorithm implements EventHandler
     {
       HitEvent hitEvent = (HitEvent) event;
       Path path;
-      AstarPosition elephantPosition = astarPositions.get(EventTarget.ELEPHANT);
+      AStarPosition elephantPosition = astarPositions.get(EventTarget.ELEPHANT);
 
       switch (hitEvent.getEventTarget())
       {
@@ -51,7 +51,7 @@ public class AStarAlgorithm implements EventHandler
           break;
 
         case ASTAR_ARMCHAIR:
-          AstarPosition armChairGoal = astarPositions.get(EventTarget.ARMCHAIR);
+          AStarPosition armChairGoal = astarPositions.get(EventTarget.ARMCHAIR);
           path = calculatePath(elephantPosition.getX(), elephantPosition.getZ(), armChairGoal.getX(), armChairGoal.getZ());
           if (path != null)
             eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "SITTING", path));
