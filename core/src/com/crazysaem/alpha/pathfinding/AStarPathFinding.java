@@ -1,6 +1,8 @@
 package com.crazysaem.alpha.pathfinding;
 
 import com.crazysaem.alpha.events.*;
+import com.crazysaem.alpha.pathfinding.node.Node;
+import com.crazysaem.alpha.pathfinding.node.NodeScoreComparator;
 
 import java.util.*;
 
@@ -15,7 +17,6 @@ public class AStarPathFinding implements EventHandler
   private HashMap<Node, Node> closedList;
   private HashMap<Node, Node> openList;
   private TreeSet<Node> openListFSorted;
-  private Stack<Node> backedupNodes;
 
   public AStarPathFinding(AStarGraph aStarGraph, EventManager eventManager, Map<EventTarget, AStarPosition> astarPositions)
   {
@@ -26,7 +27,6 @@ public class AStarPathFinding implements EventHandler
     closedList = new HashMap<Node, Node>();
     openList = new HashMap<Node, Node>();
     openListFSorted = new TreeSet<Node>(new NodeScoreComparator());
-    backedupNodes = new Stack<Node>();
   }
 
   @Override
@@ -60,122 +60,29 @@ public class AStarPathFinding implements EventHandler
     }
   }
 
-  public class NodeScoreComparator implements Comparator<Node>
-  {
-    @Override
-    public int compare(Node n1, Node n2)
-    {
-      if (n1.f > n2.f)
-        return 1;
-      else if (n1.f < n2.f)
-        return -1;
-      else if (n1.x > n2.x)
-        return 1;
-      else if (n1.x < n2.x)
-        return -1;
-      else if (n1.z > n2.z)
-        return 1;
-      else if (n1.z < n2.z)
-        return -1;
-      else
-        return 0;
-    }
-  }
-
-  public void backupNodes(int x, int z)
-  {
-    if (aStarGraph.getNode(x + 0, z + 0) != null)
-      backedupNodes.add(aStarGraph.getNode(x + 0, z + 0).TR);
-    if (aStarGraph.getNode(x + 1, z + 0) != null)
-      backedupNodes.add(aStarGraph.getNode(x + 1, z + 0).TL);
-    if (aStarGraph.getNode(x + 0, z + 1) != null)
-      backedupNodes.add(aStarGraph.getNode(x + 0, z + 1).BR);
-    if (aStarGraph.getNode(x + 1, z + 1) != null)
-      backedupNodes.add(aStarGraph.getNode(x + 1, z + 1).BL);
-  }
-
-  public void restoreNodes(int x, int z)
-  {
-    if (aStarGraph.getNode(x + 1, z + 1) != null)
-      aStarGraph.getNode(x + 1, z + 1).BL = backedupNodes.pop();
-    if (aStarGraph.getNode(x + 0, z + 1) != null)
-      aStarGraph.getNode(x + 0, z + 1).BR = backedupNodes.pop();
-    if (aStarGraph.getNode(x + 1, z + 0) != null)
-      aStarGraph.getNode(x + 1, z + 0).TL = backedupNodes.pop();
-    if (aStarGraph.getNode(x + 0, z + 0) != null)
-      aStarGraph.getNode(x + 0, z + 0).TR = backedupNodes.pop();
-  }
-
-  public void setNodeFloat(int x, int z, Node node)
-  {
-    Node n;
-    if ((n = aStarGraph.getNode(x + 0, z + 0)) != null)
-    {
-      n.TR = node;
-      node.BL = n;
-    }
-    if ((n = aStarGraph.getNode(x + 1, z + 0)) != null)
-    {
-      n.TL = node;
-      node.BR = n;
-    }
-    if ((n = aStarGraph.getNode(x + 0, z + 1)) != null)
-    {
-      n.BR = node;
-      node.TL = n;
-    }
-    if ((n = aStarGraph.getNode(x + 1, z + 1)) != null)
-    {
-      n.BL = node;
-      node.TR = n;
-    }
-  }
-
-  public void cleanup(int startXInt, int startZInt, int goalXInt, int goalZInt)
-  {
-    restoreNodes(goalXInt, goalZInt);
-    restoreNodes(startXInt, startZInt);
-  }
-
-  public boolean isPosAvailable(float x_, float z_)
-  {
-    int x = (int) x_;
-    int z = (int) z_;
-
-    if (aStarGraph.getNode(x + 0, z + 0) != null && aStarGraph.getNode(x + 0, z + 0).TR != null &&
-        aStarGraph.getNode(x + 1, z + 0) != null && aStarGraph.getNode(x + 1, z + 0).TL != null &&
-        aStarGraph.getNode(x + 0, z + 1) != null && aStarGraph.getNode(x + 0, z + 1).BR != null &&
-        aStarGraph.getNode(x + 1, z + 1) != null && aStarGraph.getNode(x + 1, z + 1).BL != null)
-      return true;
-
-    return false;
-  }
-
   public Path calculatePath(float startX, float startZ, float goalX, float goalZ)
   {
-    if (startX == goalX && startZ == goalZ || !isPosAvailable(goalX, goalZ))
+    if (startX == goalX && startZ == goalZ)
       return null;
 
     openList.clear();
     openListFSorted.clear();
     closedList.clear();
 
-    Node startingNode = new Node(startX, startZ);
-    startingNode.isSpecial = true;
-    int startXInt = (int) startX;
-    int startZInt = (int) startZ;
-    backupNodes(startXInt, startZInt);
-    setNodeFloat(startXInt, startZInt, startingNode);
+    Node startingNode = aStarGraph.getApproximateNode(startX, startZ);
+    boolean prependStartingNode = aStarGraph.getApproximateNodeFlag();
+    if (startingNode == null)
+      return null;
 
-    Node goalNode = new Node(goalX, goalZ);
-    goalNode.isSpecial = true;
-    int goalXInt = (int) goalX;
-    int goalZInt = (int) goalZ;
-    backupNodes(goalXInt, goalZInt);
-    setNodeFloat(goalXInt, goalZInt, goalNode);
+    Node goalNode = aStarGraph.getApproximateNode(goalX, goalZ);
+    boolean appendGoalNode = aStarGraph.getApproximateNodeFlag();
+    if (goalNode == null)
+      return null;
+
+    if (startingNode == goalNode)
+      return null;
 
     //Get starting Node:
-    //Node startingNode = aStarGraph.getNode(startX, startZ);
     startingNode.parent = null;
     startingNode.f = 0;
     openList.put(startingNode, startingNode);
@@ -194,24 +101,22 @@ public class AStarPathFinding implements EventHandler
         {
           //We found the goal node! Now calculate the path via the parents.
           successor.parent = q;
-          cleanup(startXInt, startZInt, goalXInt, goalZInt);
-          return new Path(successor);
+          Path path = new Path(successor);
+
+          if (prependStartingNode)
+            path.prependPosition(startX, startZ);
+
+          if (appendGoalNode)
+            path.appendPosition(goalX, goalZ);
+
+          return path;
         }
 
         if (!closedList.containsKey(successor))
         {
           int g = 14;
-          if (successor.isSpecial || q.isSpecial)
-          {
-            float xDiff = successor.x - q.x;
-            float zDiff = successor.z - q.z;
-            g = (int) Math.sqrt(xDiff * xDiff + zDiff + zDiff);
-          }
-          else
-          {
-            if (successor.x == q.x || successor.z == q.z)
-              g = 10;
-          }
+          if (successor.x == q.x || successor.z == q.z)
+            g = 10;
 
           successor.h = (int) ((Math.abs(successor.x - goalX)) + Math.abs(successor.z - goalZ)) * 10;
 
@@ -241,7 +146,6 @@ public class AStarPathFinding implements EventHandler
     }
 
     //No route was found
-    cleanup(startXInt, startZInt, goalXInt, goalZInt);
     return null;
   }
 

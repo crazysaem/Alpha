@@ -8,10 +8,15 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.crazysaem.alpha.graphics.RenderBatch;
+import com.crazysaem.alpha.pathfinding.area.WalkableArea;
+import com.crazysaem.alpha.pathfinding.area.WalkableAreaComparator;
+import com.crazysaem.alpha.pathfinding.node.Node;
 import com.crazysaem.alpha.picking.StaticTargetPool;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Created by crazysaem on 09.06.2014.
@@ -24,11 +29,15 @@ public class AStarGraph
   private int xShift, zShift;
   private int x0, z0, x1, z1;
   private List<ModelInstance> debugModelInstances = new ArrayList<ModelInstance>();
+  private boolean approximateNodeFlag;
+  //private List<WalkableArea> walkableAreas;
+  private TreeSet<WalkableArea> walkableAreas;
 
   public AStarGraph(StaticTargetPool staticTargetPool)
   {
     this.staticTargetPool = staticTargetPool;
     ray = new Ray(new Vector3(0.0f, 0.5f, 0.0f), new Vector3(0.0f, 0.0f, 0.0f));
+    walkableAreas = new TreeSet<WalkableArea>(new WalkableAreaComparator());
   }
 
   public void recalculateGraph(int x0, int z0, int x1, int z1)
@@ -136,17 +145,17 @@ public class AStarGraph
     }
 
     //Calculate walkable area-rectangles:
-    List<WalkableArea> walkableAreas = new ArrayList<WalkableArea>();
+    walkableAreas.clear();
     getAllWalkableAreas(walkableAreas, x0, z0, x1, z1);
+    optimizeWalkableAreas(walkableAreas, 0);
   }
 
-  private void getAllWalkableAreas(List<WalkableArea> walkableAreas, int x0, int z0, int x1, int z1)
+  private void getAllWalkableAreas(TreeSet<WalkableArea> walkableAreas, int x0, int z0, int x1, int z1)
   {
     int xEnd = x0, zEnd = z0;
 
     if (isAreaRectWalkable(x0, z0))
     {
-      //while (x0 <= x1 && z0 <= z1)
       while (true)
       {
         xEnd = getXLineEnd(x0, zEnd, x1);
@@ -174,6 +183,66 @@ public class AStarGraph
     }
   }
 
+  private void optimizeWalkableAreas(TreeSet<WalkableArea> walkableAreas, int pos)
+  {
+    Iterator<WalkableArea> it = walkableAreas.iterator();
+
+    for (int i = 0; i < pos ; i++)
+    {
+      if (it.hasNext())
+        it.next();
+      else
+        return;
+    }
+
+    WalkableArea walkableArea0;
+    if (it.hasNext())
+      walkableArea0 = it.next();
+    else
+      return;
+
+    WalkableArea walkableArea1;
+    if (it.hasNext())
+      walkableArea1 = it.next();
+    else
+      return;
+
+    while(true)
+    {
+      if (walkableArea0.x0 == walkableArea1.x0 && walkableArea0.x1 == walkableArea1.x1 && walkableArea0.z1 == walkableArea1.z0)
+      {
+        walkableArea0.z1 = walkableArea1.z1;
+        walkableAreas.remove(walkableArea1);
+        optimizeWalkableAreas(walkableAreas, pos);
+        return;
+      }
+      else if (walkableArea0.z0 == walkableArea1.z0 && walkableArea0.z1 == walkableArea1.z1 && walkableArea0.x1 == walkableArea1.x0)
+      {
+        walkableArea0.x1 = walkableArea1.x1;
+        walkableAreas.remove(walkableArea1);
+        optimizeWalkableAreas(walkableAreas, pos);
+        return;
+      }
+      else
+      {
+        if (it.hasNext())
+        {
+          walkableArea1 = it.next();
+        }
+        else
+        {
+          optimizeWalkableAreas(walkableAreas, pos + 1);
+          return;
+        }
+      }
+    }
+  }
+
+  public boolean isLineWalkable(float x0, float z0, float x1, float z1)
+  {
+    return false;
+  }
+
   private int getXLineEnd(int x, int z, int xMax)
   {
     while (isAreaRectWalkable(x, z) && x < xMax)
@@ -193,6 +262,47 @@ public class AStarGraph
   private void setNode(Node node, int x, int z)
   {
     nodes[xShift + x][zShift + z] = node;
+  }
+
+  public Node getApproximateNode(float x_, float z_)
+  {
+    int x = (int)x_;
+    int z = (int)z_;
+
+    approximateNodeFlag = true;
+    float distance = Float.MAX_VALUE;
+    float tempDistance;
+    Node returnNode = null;
+    Node node;
+    int[] positions = {x, z, x + 1, z, x, z + 1, x + 1, z + 1};
+
+    for (int i = 0; i < 8; i+=2)
+    {
+      if ((node = getNode(positions[i], positions[i + 1])) != null)
+      {
+        if (returnNode == null)
+        {
+          returnNode = node;
+          distance = node.calcDiastance(x_, z_);
+        }
+        else if ((tempDistance = returnNode.calcDiastance(node)) < distance)
+        {
+          distance = tempDistance;
+          returnNode = node;
+        }
+      }
+      else
+      {
+        approximateNodeFlag = false;
+      }
+    }
+
+    return returnNode;
+  }
+
+  public boolean getApproximateNodeFlag()
+  {
+    return approximateNodeFlag;
   }
 
   public Node getNode(int x, int z)

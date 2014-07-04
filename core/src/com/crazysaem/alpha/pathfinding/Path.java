@@ -1,6 +1,7 @@
 package com.crazysaem.alpha.pathfinding;
 
 import com.badlogic.gdx.math.Vector3;
+import com.crazysaem.alpha.pathfinding.node.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,12 @@ public class Path implements PositionPerTime
       z = position.z;
     }
 
+    public PathPoint(float x, float z)
+    {
+      this.x = x;
+      this.z = z;
+    }
+
     public void calculateDistance()
     {
       distance = (float)Math.sqrt((float)Math.pow(x - nextPathPoint.x, 2) + (float)Math.pow(z - nextPathPoint.z, 2));
@@ -32,10 +39,10 @@ public class Path implements PositionPerTime
   private PathPoint currentPathPoint;
   private float time;
 
-  public Path(Node goalNode)
+  public Path(Node lastNode)
   {
     positions = new ArrayList<Vector3>();
-    addPositionRecursively(goalNode);
+    addPositionRecursively(lastNode);
 
     Object[] positionsArray = positions.toArray();
 
@@ -50,6 +57,31 @@ public class Path implements PositionPerTime
     }
 
     currentPathPoint = startPoint;
+  }
+
+  public void prependPosition(float x, float z)
+  {
+    PathPoint pathPoint = new PathPoint(x, z);
+    pathPoint.nextPathPoint = currentPathPoint;
+    currentPathPoint = pathPoint;
+    pathPoint.calculateDistance();
+  }
+
+  public void appendPosition(float x, float z)
+  {
+    if (currentPathPoint.nextPathPoint == null)
+      return;
+
+    PathPoint pathPoint = new PathPoint(x, z);
+    PathPoint lastPathPoint = currentPathPoint;
+    do
+    {
+      lastPathPoint = lastPathPoint.nextPathPoint;
+    }
+    while (lastPathPoint.nextPathPoint != null);
+
+    lastPathPoint.nextPathPoint = pathPoint;
+    lastPathPoint.calculateDistance();
   }
 
   private void addPositionRecursively(Node n)
