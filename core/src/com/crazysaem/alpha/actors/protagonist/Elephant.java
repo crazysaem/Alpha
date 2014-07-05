@@ -172,6 +172,9 @@ public class Elephant extends Renderable implements EventHandler, AStarPosition,
   {
     if (event instanceof MoveEvent)
     {
+      if (animationInProgress)
+        return;
+
       MoveEvent moveEvent = (MoveEvent) event;
       positionPerTime = moveEvent.getPositionPerTime();
       if (currentPose == ElephantPose.STANDING)

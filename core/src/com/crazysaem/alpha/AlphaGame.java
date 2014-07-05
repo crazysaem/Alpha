@@ -15,6 +15,11 @@ public class AlphaGame extends ApplicationAdapter
   }
 
   @Override
+  public void resize(int width, int height)
+  {
+  }
+
+  @Override
   public void render()
   {
     world.update(Gdx.graphics.getDeltaTime());
@@ -22,8 +27,21 @@ public class AlphaGame extends ApplicationAdapter
   }
 
   @Override
+  public void pause()
+  {
+    System.out.println("ALPHA: PAUSE");
+  }
+
+  @Override
+  public void resume()
+  {
+    System.out.println("ALPHA: RESUME");
+  }
+
+  @Override
   public void dispose()
   {
+    System.out.println("ALPHA: DISPOSE");
     world.dispose();
   }
 }
