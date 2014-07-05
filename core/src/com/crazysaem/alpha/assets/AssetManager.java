@@ -17,15 +17,13 @@ public class AssetManager implements Disposable
 
   private static final String FATMODEL = "models/AllAssets.g3db";
 
-  private static final AssetManager instance = new AssetManager();
+  private static AssetManager instance = null;
   private Model fatModel;
   private boolean loading;
-  private boolean isDisposed;
 
   private AssetManager()
   {
     loading = true;
-    isDisposed = false;
 
     assetManager = new com.badlogic.gdx.assets.AssetManager();
     assetManager.load(FATMODEL, Model.class);
@@ -33,6 +31,9 @@ public class AssetManager implements Disposable
 
   public static AssetManager getInstance()
   {
+    if (instance == null)
+      instance = new AssetManager();
+
     return instance;
   }
 
@@ -53,6 +54,11 @@ public class AssetManager implements Disposable
     return true;
   }
 
+  public void reload()
+  {
+    assetManager.finishLoading();
+  }
+
   public ModelInstance getModelInstance(final String... rootNodeIds)
   {
     return new ModelInstance(fatModel, rootNodeIds);
@@ -61,9 +67,9 @@ public class AssetManager implements Disposable
   @Override
   public void dispose()
   {
-    if (!isDisposed)
-      assetManager.dispose();
-
-    isDisposed = true;
+    loading = true;
+    assetManager.unload(FATMODEL);
+    assetManager.dispose();
+    instance = null;
   }
 }

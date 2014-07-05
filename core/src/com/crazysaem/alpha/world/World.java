@@ -14,6 +14,7 @@ import com.crazysaem.alpha.actors.house.Walls;
 import com.crazysaem.alpha.actors.outside.Ground;
 import com.crazysaem.alpha.actors.outside.Sky;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
+import com.crazysaem.alpha.assets.AssetManager;
 import com.crazysaem.alpha.events.EventManager;
 import com.crazysaem.alpha.events.EventTarget;
 import com.crazysaem.alpha.graphics.CameraController;
@@ -188,6 +189,10 @@ public class World implements Disposable
   @Override
   public void dispose()
   {
-    renderBatch.dispose();
+    for (Renderable renderable : renderables)
+      renderable.dispose();
+    shelf.dispose();
+
+    AssetManager.getInstance().dispose();
   }
 }

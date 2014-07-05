@@ -66,6 +66,6 @@ public abstract class Renderable implements Disposable
   @Override
   public void dispose()
   {
-    assetManager.dispose();
+    loading = true;
   }
 }
