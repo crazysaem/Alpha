@@ -31,7 +31,8 @@ public class Path implements PositionPerTime
 
     public void calculateDistance()
     {
-      distance = (float)Math.sqrt((float)Math.pow(x - nextPathPoint.x, 2) + (float)Math.pow(z - nextPathPoint.z, 2));
+      if (nextPathPoint != null)
+        distance = (float)Math.sqrt((float)Math.pow(x - nextPathPoint.x, 2) + (float)Math.pow(z - nextPathPoint.z, 2));
     }
   }
 
@@ -52,7 +53,7 @@ public class Path implements PositionPerTime
     for (int i = 0; i < positionsArray.length - 1; i++)
     {
       pathPoint.nextPathPoint = new PathPoint((Vector3) positionsArray[i + 1]);
-      pathPoint.calculateDistance();
+      //pathPoint.calculateDistance();
       pathPoint = pathPoint.nextPathPoint;
     }
 
@@ -64,7 +65,7 @@ public class Path implements PositionPerTime
     PathPoint pathPoint = new PathPoint(x, z);
     pathPoint.nextPathPoint = currentPathPoint;
     currentPathPoint = pathPoint;
-    pathPoint.calculateDistance();
+    //pathPoint.calculateDistance();
   }
 
   public void appendPosition(float x, float z)
@@ -81,7 +82,7 @@ public class Path implements PositionPerTime
     while (lastPathPoint.nextPathPoint != null);
 
     lastPathPoint.nextPathPoint = pathPoint;
-    lastPathPoint.calculateDistance();
+    //lastPathPoint.calculateDistance();
   }
 
   private void addPositionRecursively(Node n)
@@ -94,6 +95,62 @@ public class Path implements PositionPerTime
 
     addPositionRecursively(n.parent);
     positions.add(new Vector3(n.x, 0.0f, n.z));
+  }
+
+  public void initialize(AStarGraph aStarGraph)
+  {
+    optimizePath(aStarGraph);
+    calculateDistances();
+  }
+
+  private void optimizePath(AStarGraph aStarGraph)
+  {
+    PathPoint point0 = currentPathPoint;
+    PathPoint point1 = null;
+
+    while (true)
+    {
+      if (point1 == null)
+      {
+        if (point0.nextPathPoint != null)
+          if (point0.nextPathPoint.nextPathPoint != null)
+            point1 = point0.nextPathPoint.nextPathPoint;
+          else
+            return;
+        else
+          return;
+      }
+
+      if (aStarGraph.isLineInWalkableArea(point0.x, point0.z, point1.x, point1.z))
+      {
+        point0.nextPathPoint = null;
+        point0.nextPathPoint = point1;
+
+        if (point1.nextPathPoint != null)
+          point1 = point1.nextPathPoint;
+        else
+          return;
+      }
+      else
+      {
+        if (point0.nextPathPoint != null)
+          point0 = point0.nextPathPoint;
+        else
+          return;
+        point1 = null;
+      }
+    }
+  }
+
+  private void calculateDistances()
+  {
+    PathPoint point = currentPathPoint;
+
+    while (point != null)
+    {
+      point.calculateDistance();
+      point = point.nextPathPoint;
+    }
   }
 
   @Override

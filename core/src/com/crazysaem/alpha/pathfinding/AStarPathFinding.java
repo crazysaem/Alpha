@@ -70,7 +70,7 @@ public class AStarPathFinding implements EventHandler
     closedList.clear();
 
     Node startingNode = aStarGraph.getApproximateNode(startX, startZ);
-    boolean prependStartingNode = aStarGraph.getApproximateNodeFlag();
+    //boolean prependStartingNode = aStarGraph.getApproximateNodeFlag();
     if (startingNode == null)
       return null;
 
@@ -103,11 +103,13 @@ public class AStarPathFinding implements EventHandler
           successor.parent = q;
           Path path = new Path(successor);
 
-          if (prependStartingNode)
-            path.prependPosition(startX, startZ);
+          //if (prependStartingNode)
+          path.prependPosition(startX, startZ);
 
           if (appendGoalNode)
             path.appendPosition(goalX, goalZ);
+
+          path.initialize(aStarGraph);
 
           return path;
         }

@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.crazysaem.alpha.graphics.RenderBatch;
@@ -187,7 +189,7 @@ public class AStarGraph
   {
     Iterator<WalkableArea> it = walkableAreas.iterator();
 
-    for (int i = 0; i < pos ; i++)
+    for (int i = 0; i < pos; i++)
     {
       if (it.hasNext())
         it.next();
@@ -207,7 +209,7 @@ public class AStarGraph
     else
       return;
 
-    while(true)
+    while (true)
     {
       if (walkableArea0.x0 == walkableArea1.x0 && walkableArea0.x1 == walkableArea1.x1 && walkableArea0.z1 == walkableArea1.z0)
       {
@@ -238,9 +240,114 @@ public class AStarGraph
     }
   }
 
-  public boolean isLineWalkable(float x0, float z0, float x1, float z1)
+  public boolean isLineInWalkableArea(float x0, float z0, float x1, float z1)
   {
-    return false;
+    if (x0 > x1 || z0 > z1)
+      return isLineInWalkableAreasImpl(x1, z1, x0, z0);
+
+    return isLineInWalkableAreasImpl(x0, z0, x1, z1);
+  }
+
+  private boolean isLineInWalkableAreasImpl(float x0, float z0, float x1, float z1)
+  {
+    Iterator<WalkableArea> it = walkableAreas.iterator();
+
+    WalkableArea walkableArea;
+    while (true)
+    {
+      if (it.hasNext())
+      {
+        walkableArea = it.next();
+      }
+      else
+        return false;
+
+
+      if (isPointInWalkableArea(walkableArea, x0, z0))
+      {
+        if (isPointInWalkableArea(walkableArea, x1, z1))
+        {
+          return true;
+        }
+        else
+        {
+          Vector2 point = new Vector2();
+          if (getLineSegmentWalkableAreaIntersectionPoint(walkableArea, x0, z0, x1, z1, point))
+          {
+            x0 = point.x;
+            z0 = point.y;
+          }
+          else
+            return false;
+        }
+      }
+    }
+  }
+
+  private boolean getLineSegmentWalkableAreaIntersectionPoint(WalkableArea walkableArea, float x0, float z0, float x1, float z1, Vector2 point)
+  {
+    //Only check top, right and bottom lines
+    boolean flag = false;
+
+    //Top
+    if (Intersector.intersectLines(walkableArea.x0, walkableArea.z0, walkableArea.x1, walkableArea.z0, x0, z0, x1, z1, point))
+    {
+      //Check if point in walkable area
+      if (point.x >= walkableArea.x0 && point.y >= walkableArea.z0 && point.x <= walkableArea.x1 && point.y <= walkableArea.z1)
+      {
+        //Check if point on test line
+        if (point.x >= x0 && point.y >= z0 && point.x <= x1 && point.y <= z1)
+        {
+          if (point.x == x0 && point.y == z0)
+            flag = true;
+          else
+            return true;
+        }
+      }
+    }
+
+    //Right
+    if (Intersector.intersectLines(walkableArea.x1, walkableArea.z0, walkableArea.x1, walkableArea.z1, x0, z0, x1, z1, point))
+    {
+      if (point.x >= walkableArea.x0 && point.y >= walkableArea.z0 && point.x <= walkableArea.x1 && point.y <= walkableArea.z1)
+      {
+        if (point.x >= x0 && point.y >= z0 && point.x <= x1 && point.y <= z1)
+        {
+          if (point.x == x0 && point.y == z0)
+            flag = true;
+          else
+            return true;
+        }
+      }
+    }
+
+    //Bottom
+    if (Intersector.intersectLines(walkableArea.x0, walkableArea.z1, walkableArea.x1, walkableArea.z1, x0, z0, x1, z1, point))
+    {
+      if (point.x >= walkableArea.x0 && point.y >= walkableArea.z0 && point.x <= walkableArea.x1 && point.y <= walkableArea.z1)
+      {
+        if (point.x >= x0 && point.y >= z0 && point.x <= x1 && point.y <= z1)
+        {
+          if (point.x == x0 && point.y == z0)
+            flag = true;
+          else
+            return true;
+        }
+      }
+    }
+
+    if (flag)
+    {
+      point.x = x0;
+      point.y = z0;
+    }
+
+    return flag;
+  }
+
+  private boolean isPointInWalkableArea(WalkableArea walkableArea, float x0, float z0)
+  {
+    return x0 >= walkableArea.x0 && z0 >= walkableArea.z0 && x0 <= walkableArea.x1 && z0 <= walkableArea.z1;
   }
 
   private int getXLineEnd(int x, int z, int xMax)
@@ -266,17 +373,18 @@ public class AStarGraph
 
   public Node getApproximateNode(float x_, float z_)
   {
-    int x = (int)x_;
-    int z = (int)z_;
+    //Ensure that x/z represent the bottom left corner of the tile
+    int x = (int)Math.floor(x_);
+    int z = (int)Math.ceil(z_);
 
     approximateNodeFlag = true;
     float distance = Float.MAX_VALUE;
     float tempDistance;
     Node returnNode = null;
     Node node;
-    int[] positions = {x, z, x + 1, z, x, z + 1, x + 1, z + 1};
+    int[] positions = {x, z, x + 1, z, x, z - 1, x + 1, z - 1};
 
-    for (int i = 0; i < 8; i+=2)
+    for (int i = 0; i < 8; i += 2)
     {
       if ((node = getNode(positions[i], positions[i + 1])) != null)
       {
