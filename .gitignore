@@ -3,6 +3,7 @@
 !gdx-setup-1.2.0.jar
 !README
 !credits.txt
+!build.gradle
 !android/
 !android/*
 !core/
