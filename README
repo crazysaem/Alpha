@@ -16,4 +16,13 @@ Extensions:		<None>
 PRESS Generate!
 
 After the project was generated, copy all contents from the checkout over to the directory where
-the project was generated. Now import to IDEA and GO!
+the project was generated.
+
+A modified LibGDX version was used, which can be found here:
+https://github.com/crazysaem/libgdx/commits/1.2.0_mods
+Clone it, switch to branch 1.2.0_mods, build it with:
+  ant -f fetch.xml
+  ant
+Copy gdx.jar and gdx-sources.jar (with the right version extensions, to the gradle cache.
+
+Now import to IDEA, make sure that gradle is in offline mode to not override the custom gdx version, and GO!
