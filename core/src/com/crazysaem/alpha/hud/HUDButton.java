@@ -27,6 +27,8 @@ public class HUDButton extends Button
       Gdx.app.error("fontShader", "compilation failed:\n" + fontShader.getLog());
     }
 
+
+
     texture = new Texture(Gdx.files.internal("fonts/firaSansRegular.png"), true); // true enables mipmaps
     texture.setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear); // linear filtering in nearest mipmap image
 
