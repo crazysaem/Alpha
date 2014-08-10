@@ -1,6 +1,6 @@
 *
 !.gitignore
-!gdx-setup-1.2.0.jar
+!gdx-setup-1.3.0.jar
 !README
 !credits.txt
 !build.gradle
