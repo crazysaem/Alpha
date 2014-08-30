@@ -1,9 +1,7 @@
 package com.crazysaem.alpha.actors.furniture;
 
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 

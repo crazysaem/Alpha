@@ -11,10 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
  */
 public class HUDIndicator extends Image
 {
+  public int test;
   private Texture baseTexturer;
   private TextureRegionDrawable outlineTextureDrawable;
   private float value;
-  public int test;
 
   public HUDIndicator(String alpha, String base, String outline)
   {
@@ -33,7 +33,7 @@ public class HUDIndicator extends Image
     super.draw(batch, parentAlpha);
 
     //batch.draw(baseTexturer, getX() + getImageX(), getY() + getImageY() - baseTexturer.getHeight() * value, 0, baseTexturer.getHeight() * value, baseTexturer.getWidth(), baseTexturer.getHeight(), 1.0f, 1.0f, 0.0f, 0, (int)(baseTexturer.getHeight() * value), baseTexturer.getWidth(), baseTexturer.getHeight(), false, false);
-    batch.draw(baseTexturer, getX() + getImageX(), getY() + getImageY() -(int)( baseTexturer.getHeight() * value), 0, (int)(baseTexturer.getHeight() * value), baseTexturer.getWidth(), baseTexturer.getHeight(), 1.0f, 1.0f, 0.0f, 0, (int)(baseTexturer.getHeight() * value), baseTexturer.getWidth(), baseTexturer.getHeight(), false, false);
+    batch.draw(baseTexturer, getX() + getImageX(), getY() + getImageY() - (int) (baseTexturer.getHeight() * value), 0, (int) (baseTexturer.getHeight() * value), baseTexturer.getWidth(), baseTexturer.getHeight(), 1.0f, 1.0f, 0.0f, 0, (int) (baseTexturer.getHeight() * value), baseTexturer.getWidth(), baseTexturer.getHeight(), false, false);
     outlineTextureDrawable.draw(batch, getX() + getImageX(), getY() + getImageY(), getImageWidth() * getScaleX(), getImageHeight() * getScaleY());
   }
 

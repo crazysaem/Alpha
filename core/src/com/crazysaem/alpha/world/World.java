@@ -2,6 +2,7 @@ package com.crazysaem.alpha.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.utils.Disposable;
@@ -15,41 +16,37 @@ import com.crazysaem.alpha.actors.outside.Ground;
 import com.crazysaem.alpha.actors.outside.Sky;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
 import com.crazysaem.alpha.assets.AssetManager;
-import com.crazysaem.alpha.events.EventManager;
-import com.crazysaem.alpha.events.EventTarget;
 import com.crazysaem.alpha.graphics.CameraController;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.hud.HUD;
-import com.crazysaem.alpha.pathfinding.AStarPathFinding;
+import com.crazysaem.alpha.messages.AStarMessage;
+import com.crazysaem.alpha.messages.MessageDispatcherUtil;
+import com.crazysaem.alpha.messages.MoveMessage;
 import com.crazysaem.alpha.pathfinding.AStarGraph;
-import com.crazysaem.alpha.pathfinding.AStarPosition;
+import com.crazysaem.alpha.pathfinding.AStarPathFinding;
+import com.crazysaem.alpha.picking.CollisionRenderablePool;
 import com.crazysaem.alpha.picking.RayPicking;
-import com.crazysaem.alpha.picking.StaticTarget;
-import com.crazysaem.alpha.picking.StaticTargetPool;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by crazysaem on 23.05.2014.
  */
 public class World implements Disposable
 {
+  private static final float CAMERA_HEIGHT = 2.0f;
   private PerspectiveCamera cam;
   private CameraController camController;
   private RenderBatch renderBatch;
-  private EventManager eventManager;
   private HUD hud;
   private List<Renderable> renderables;
   private AStarGraph aStarGraph;
   private boolean finishedLoading;
   private Elephant elephant;
   private Shelf shelf;
-
-  private static final float CAMERA_HEIGHT = 2.0f;
 
   public World()
   {
@@ -69,8 +66,7 @@ public class World implements Disposable
     renderBatch = new RenderBatch();
     renderables = new ArrayList<Renderable>();
 
-    eventManager = new EventManager();
-    hud = new HUD(eventManager);
+    hud = new HUD();
 
     Carrot carrot = new Carrot();
     ArmChair armChair = new ArmChair();
@@ -82,53 +78,28 @@ public class World implements Disposable
     shelf = new Shelf();
     elephant = new Elephant();
 
-    eventManager.registerEventHandler(EventTarget.NONE, null);
-    eventManager.registerEventHandler(EventTarget.ELEPHANT, elephant);
-    eventManager.registerEventHandler(EventTarget.CARROT, carrot);
-    eventManager.registerEventHandler(EventTarget.ARMCHAIR, armChair);
+    renderables.addAll(Arrays.asList(elephant, carrot, armChair, fridge, sky, ground, floor, walls));
 
-    renderables.add(elephant);
-    renderables.add(carrot);
-    renderables.add(armChair);
-    renderables.add(fridge);
-    renderables.add(sky);
-    renderables.add(ground);
-    renderables.add(floor);
-    renderables.add(walls);
-    //renderables.add(shelf);
+    CollisionRenderablePool collisionRenderablePoolGraph = new CollisionRenderablePool(walls, armChair, fridge);
 
-    StaticTargetPool staticTargetPoolGraph = new StaticTargetPool();
-    staticTargetPoolGraph.add(new StaticTarget(walls, EventTarget.HOUSE));
-    staticTargetPoolGraph.add(new StaticTarget(armChair, EventTarget.ARMCHAIR));
-    staticTargetPoolGraph.add(new StaticTarget(fridge, EventTarget.FRIDGE));
+    aStarGraph = new AStarGraph(collisionRenderablePoolGraph);
+    AStarPathFinding aStarPathFinding = new AStarPathFinding(aStarGraph, elephant);
+    MessageDispatcherUtil.addListeners(AStarMessage.MESSAGE_CODE, aStarPathFinding);
+    MessageDispatcherUtil.addListeners(MoveMessage.MESSAGE_CODE, elephant);
 
-    aStarGraph = new AStarGraph(staticTargetPoolGraph);
-    Map<EventTarget, AStarPosition> astarPositions = new HashMap<EventTarget, AStarPosition>();
-    astarPositions.put(EventTarget.ELEPHANT, elephant);
-    astarPositions.put(EventTarget.ARMCHAIR, armChair);
-    AStarPathFinding aStarPathFinding = new AStarPathFinding(aStarGraph, eventManager, astarPositions);
-    eventManager.registerEventHandler(EventTarget.ASTAR_GROUND, aStarPathFinding);
-    eventManager.registerEventHandler(EventTarget.ASTAR_FLOOR, aStarPathFinding);
-    eventManager.registerEventHandler(EventTarget.ASTAR_ARMCHAIR, aStarPathFinding);
-
-    StaticTargetPool staticTargetPoolInteraction = new StaticTargetPool();
-    staticTargetPoolInteraction.add(new StaticTarget(ground, EventTarget.ASTAR_GROUND));
-    staticTargetPoolInteraction.add(new StaticTarget(floor, EventTarget.ASTAR_FLOOR));
-    staticTargetPoolInteraction.add(new StaticTarget(armChair, EventTarget.ASTAR_ARMCHAIR));
-
-    StaticTargetPool staticTargetPoolObfuscation = new StaticTargetPool();
-    staticTargetPoolObfuscation.add(new StaticTarget(walls, EventTarget.NONE));
+    CollisionRenderablePool collisionRenderablePoolInteraction = new CollisionRenderablePool(ground, floor, armChair);
+    CollisionRenderablePool collisionRenderablePoolObfuscation = new CollisionRenderablePool(walls);
 
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
-    inputMultiplexer.addProcessor(new RayPicking(cam, eventManager, staticTargetPoolInteraction, staticTargetPoolObfuscation));
+    inputMultiplexer.addProcessor(new RayPicking(cam, collisionRenderablePoolInteraction, collisionRenderablePoolObfuscation));
     inputMultiplexer.addProcessor(camController);
     Gdx.input.setInputProcessor(inputMultiplexer);
   }
 
   private void finishedLoading()
   {
-    //All Models have been initialized here
+    //All Models/Renderables have been initialized at this point in time
     aStarGraph.recalculateGraph(-19, -19, 19, 19);
     //aStarGraph.createDebugRenderGraphics();
 
@@ -138,16 +109,22 @@ public class World implements Disposable
   public void update(float delta)
   {
     camController.update();
-    eventManager.update();
+    MessageDispatcher.getInstance().dispatchDelayedMessages();
     hud.update(delta);
     for (Renderable renderable : renderables)
+    {
       renderable.update(delta);
+    }
 
     if (!finishedLoading)
     {
       for (Renderable renderable : renderables)
+      {
         if (!renderable.isFinished())
+        {
           return;
+        }
+      }
 
       finishedLoading();
     }
@@ -174,7 +151,9 @@ public class World implements Disposable
 
     renderBatch.begin(cam);
     for (Renderable renderable : renderables)
+    {
       renderable.render(renderBatch);
+    }
 
     //We need to flush once to enable blending
     renderBatch.flush();
@@ -190,7 +169,9 @@ public class World implements Disposable
   public void dispose()
   {
     for (Renderable renderable : renderables)
+    {
       renderable.dispose();
+    }
     shelf.dispose();
 
     AssetManager.getInstance().dispose();

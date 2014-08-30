@@ -33,7 +33,9 @@ public abstract class Renderable implements Disposable
   {
     modelInstance = assetManager.getModelInstance(rootNodeIds);
     if (useAnimationController)
+    {
       animationController = new AnimationController(modelInstance);
+    }
 
     loading = false;
   }
@@ -41,19 +43,29 @@ public abstract class Renderable implements Disposable
   public void update(float delta)
   {
     if (loading)
+    {
       if (assetManager.isReady())
+      {
         finishLoading();
+      }
       else
+      {
         return;
+      }
+    }
 
     if (animationController != null)
+    {
       animationController.update(delta);
+    }
   }
 
   public void render(RenderBatch renderBatch)
   {
     if (loading)
+    {
       return;
+    }
 
     renderBatch.render(modelInstance);
   }

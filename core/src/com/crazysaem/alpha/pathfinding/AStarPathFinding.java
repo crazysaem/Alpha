@@ -1,69 +1,70 @@
 package com.crazysaem.alpha.pathfinding;
 
-import com.crazysaem.alpha.events.*;
+import com.badlogic.gdx.ai.Agent;
+import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.Telegram;
+import com.crazysaem.alpha.messages.AStarMessage;
+import com.crazysaem.alpha.messages.MoveMessage;
 import com.crazysaem.alpha.pathfinding.node.Node;
 import com.crazysaem.alpha.pathfinding.node.NodeScoreComparator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Created by crazysaem on 14.06.2014.
  */
-public class AStarPathFinding implements EventHandler
+public class AStarPathFinding implements Agent
 {
   private AStarGraph aStarGraph;
-  private EventManager eventManager;
-  private Map<EventTarget, AStarPosition> astarPositions;
   private HashMap<Node, Node> closedList;
   private HashMap<Node, Node> openList;
   private TreeSet<Node> openListFSorted;
+  private Position startPosition;
 
-  public AStarPathFinding(AStarGraph aStarGraph, EventManager eventManager, Map<EventTarget, AStarPosition> astarPositions)
+  public AStarPathFinding(AStarGraph aStarGraph, Position startPosition)
   {
     this.aStarGraph = aStarGraph;
-    this.eventManager = eventManager;
-    this.astarPositions = astarPositions;
 
     closedList = new HashMap<Node, Node>();
     openList = new HashMap<Node, Node>();
     openListFSorted = new TreeSet<Node>(new NodeScoreComparator());
+    this.startPosition = startPosition;
   }
 
   @Override
-  public void handleEvent(Event event)
+  public boolean handleMessage(Telegram msg)
   {
-    if (event instanceof HitEvent)
+    if (msg.message == AStarMessage.MESSAGE_CODE && msg.extraInfo instanceof AStarMessage)
     {
-      HitEvent hitEvent = (HitEvent) event;
-      Path path;
-      AStarPosition elephantPosition = astarPositions.get(EventTarget.ELEPHANT);
-
-      switch (hitEvent.getEventTarget())
+      AStarMessage aStarMessage = (AStarMessage) msg.extraInfo;
+      Path path = calculatePath(startPosition.getX(), startPosition.getZ(), aStarMessage.getX(), aStarMessage.getZ());
+      if (path != null)
       {
-        case ASTAR_GROUND:
-        case ASTAR_FLOOR:
-          //TODO: get closest Node position for given hitPosition
-          float goalX = hitEvent.getHitPos().x;
-          float goalZ = hitEvent.getHitPos().z;
-          path = calculatePath(elephantPosition.getX(), elephantPosition.getZ(), goalX, goalZ);
-          if (path != null)
-            eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "WALKING", path));
-          break;
+        if (msg.sender != null && msg.sender instanceof Angle)
+        {
+          path.setAngle(((Angle) msg.sender).getAngle());
+        }
 
-        case ASTAR_ARMCHAIR:
-          AStarPosition armChairGoal = astarPositions.get(EventTarget.ARMCHAIR);
-          path = calculatePath(elephantPosition.getX(), elephantPosition.getZ(), armChairGoal.getX(), armChairGoal.getZ());
-          if (path != null)
-            eventManager.addEvent(new MoveEvent(EventTarget.ELEPHANT, "SITTING", path));
-          break;
+        MoveMessage moveMessage = new MoveMessage(path);
+        MessageDispatcher.getInstance().dispatchMessage(0.0f, msg.sender, null, MoveMessage.MESSAGE_CODE, moveMessage);
+        return true;
       }
+
+      return false;
     }
+
+    return false;
   }
 
   public Path calculatePath(float startX, float startZ, float goalX, float goalZ)
   {
     if (startX == goalX && startZ == goalZ)
+    {
       return null;
+    }
 
     openList.clear();
     openListFSorted.clear();
@@ -72,15 +73,21 @@ public class AStarPathFinding implements EventHandler
     Node startingNode = aStarGraph.getApproximateNode(startX, startZ);
     //boolean prependStartingNode = aStarGraph.getApproximateNodeFlag();
     if (startingNode == null)
+    {
       return null;
+    }
 
     Node goalNode = aStarGraph.getApproximateNode(goalX, goalZ);
     boolean appendGoalNode = aStarGraph.getApproximateNodeFlag();
     if (goalNode == null)
+    {
       return null;
+    }
 
     if (startingNode == goalNode)
+    {
       return null;
+    }
 
     //Get starting Node:
     startingNode.parent = null;
@@ -107,7 +114,9 @@ public class AStarPathFinding implements EventHandler
           path.prependPosition(startX, startZ);
 
           if (appendGoalNode)
+          {
             path.appendPosition(goalX, goalZ);
+          }
 
           path.initialize(aStarGraph);
 
@@ -118,7 +127,9 @@ public class AStarPathFinding implements EventHandler
         {
           int g = 14;
           if (successor.x == q.x || successor.z == q.z)
+          {
             g = 10;
+          }
 
           successor.h = (int) ((Math.abs(successor.x - goalX)) + Math.abs(successor.z - goalZ)) * 10;
 
@@ -157,8 +168,12 @@ public class AStarPathFinding implements EventHandler
     List<Node> ret = new ArrayList<Node>();
 
     for (Node adjacentNode : adjacentNodes)
+    {
       if (adjacentNode != null)
+      {
         ret.add(adjacentNode);
+      }
+    }
 
     return ret;
   }
@@ -166,8 +181,16 @@ public class AStarPathFinding implements EventHandler
   public Node getNodeWithLowestFScoreFromOpenList()
   {
     if (openListFSorted.size() > 0)
+    {
       return openListFSorted.first();
+    }
 
     return null;
+  }
+
+  @Override
+  public void update(float delta)
+  {
+
   }
 }

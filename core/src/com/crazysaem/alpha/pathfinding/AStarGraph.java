@@ -13,7 +13,7 @@ import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.pathfinding.area.WalkableArea;
 import com.crazysaem.alpha.pathfinding.area.WalkableAreaComparator;
 import com.crazysaem.alpha.pathfinding.node.Node;
-import com.crazysaem.alpha.picking.StaticTargetPool;
+import com.crazysaem.alpha.picking.CollisionRenderablePool;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,7 +25,7 @@ import java.util.TreeSet;
  */
 public class AStarGraph
 {
-  private StaticTargetPool staticTargetPool;
+  private CollisionRenderablePool collisionRenderablePool;
   private Node[][] nodes;
   private Ray ray;
   private int xShift, zShift;
@@ -35,9 +35,9 @@ public class AStarGraph
   //private List<WalkableArea> walkableAreas;
   private TreeSet<WalkableArea> walkableAreas;
 
-  public AStarGraph(StaticTargetPool staticTargetPool)
+  public AStarGraph(CollisionRenderablePool collisionRenderablePool)
   {
-    this.staticTargetPool = staticTargetPool;
+    this.collisionRenderablePool = collisionRenderablePool;
     ray = new Ray(new Vector3(0.0f, 0.5f, 0.0f), new Vector3(0.0f, 0.0f, 0.0f));
     walkableAreas = new TreeSet<WalkableArea>(new WalkableAreaComparator());
   }
@@ -101,7 +101,9 @@ public class AStarGraph
         boolean check3 = collisionCheck(xf, 0.0f, zf + sizeHalf, xf - sizeHalf, size, zf - sizeHalf, distance);
 
         if (check0 && check1 && check2 && check3)
+        {
           setNode(new Node(x, z), x, z);
+        }
       }
     }
 
@@ -120,28 +122,44 @@ public class AStarGraph
           topFlag = z > zMin;
 
           if (leftFlag)
+          {
             node.L = getNode(x - 1, z);
+          }
 
           if (topFlag)
+          {
             node.T = getNode(x, z - 1);
+          }
 
           if (rightFlag)
+          {
             node.R = getNode(x + 1, z);
+          }
 
           if (botFlag)
+          {
             node.B = getNode(x, z + 1);
+          }
 
           if (node.T != null && node.L != null)
+          {
             node.TL = getNode(x - 1, z - 1);
+          }
 
           if (node.T != null && node.R != null)
+          {
             node.TR = getNode(x + 1, z - 1);
+          }
 
           if (node.B != null && node.L != null)
+          {
             node.BL = getNode(x - 1, z + 1);
+          }
 
           if (node.B != null && node.R != null)
+          {
             node.BR = getNode(x + 1, z + 1);
+          }
         }
       }
     }
@@ -164,24 +182,34 @@ public class AStarGraph
         zEnd++;
 
         while (getXLineEnd(x0, zEnd, x1) == xEnd)
+        {
           zEnd++;
+        }
 
         walkableAreas.add(new WalkableArea(x0, z0, xEnd, zEnd));
         break;
       }
 
       if (xEnd < x1)
+      {
         getAllWalkableAreas(walkableAreas, xEnd, z0, x1, z1);
+      }
       if (zEnd < z1)
+      {
         getAllWalkableAreas(walkableAreas, x0, zEnd, xEnd, z1);
+      }
     }
     else
     {
       if (x0 + 1 < x1)
+      {
         getAllWalkableAreas(walkableAreas, x0 + 1, z0, x1, z1);
+      }
 
       if (z0 + 1 < z1)
+      {
         getAllWalkableAreas(walkableAreas, x0, z0 + 1, x0 + 1, z1);
+      }
     }
   }
 
@@ -192,22 +220,34 @@ public class AStarGraph
     for (int i = 0; i < pos; i++)
     {
       if (it.hasNext())
+      {
         it.next();
+      }
       else
+      {
         return;
+      }
     }
 
     WalkableArea walkableArea0;
     if (it.hasNext())
+    {
       walkableArea0 = it.next();
+    }
     else
+    {
       return;
+    }
 
     WalkableArea walkableArea1;
     if (it.hasNext())
+    {
       walkableArea1 = it.next();
+    }
     else
+    {
       return;
+    }
 
     while (true)
     {
@@ -243,7 +283,9 @@ public class AStarGraph
   public boolean isLineInWalkableArea(float x0, float z0, float x1, float z1)
   {
     if (x0 > x1 || z0 > z1)
+    {
       return isLineInWalkableAreasImpl(x1, z1, x0, z0);
+    }
 
     return isLineInWalkableAreasImpl(x0, z0, x1, z1);
   }
@@ -260,7 +302,9 @@ public class AStarGraph
         walkableArea = it.next();
       }
       else
+      {
         return false;
+      }
 
 
       if (isPointInWalkableArea(walkableArea, x0, z0))
@@ -278,7 +322,9 @@ public class AStarGraph
             z0 = point.y;
           }
           else
+          {
             return false;
+          }
         }
       }
     }
@@ -299,9 +345,13 @@ public class AStarGraph
         if (point.x >= x0 && point.y >= z0 && point.x <= x1 && point.y <= z1)
         {
           if (point.x == x0 && point.y == z0)
+          {
             flag = true;
+          }
           else
+          {
             return true;
+          }
         }
       }
     }
@@ -314,9 +364,13 @@ public class AStarGraph
         if (point.x >= x0 && point.y >= z0 && point.x <= x1 && point.y <= z1)
         {
           if (point.x == x0 && point.y == z0)
+          {
             flag = true;
+          }
           else
+          {
             return true;
+          }
         }
       }
     }
@@ -329,9 +383,13 @@ public class AStarGraph
         if (point.x >= x0 && point.y >= z0 && point.x <= x1 && point.y <= z1)
         {
           if (point.x == x0 && point.y == z0)
+          {
             flag = true;
+          }
           else
+          {
             return true;
+          }
         }
       }
     }
@@ -353,7 +411,9 @@ public class AStarGraph
   private int getXLineEnd(int x, int z, int xMax)
   {
     while (isAreaRectWalkable(x, z) && x < xMax)
+    {
       x++;
+    }
 
     return x;
   }
@@ -361,7 +421,9 @@ public class AStarGraph
   private boolean isAreaRectWalkable(int xTL, int zTL)
   {
     if (getNode(xTL, zTL) != null && getNode(xTL + 1, zTL) != null && getNode(xTL, zTL + 1) != null && getNode(xTL + 1, zTL + 1) != null)
+    {
       return true;
+    }
 
     return false;
   }
@@ -374,8 +436,8 @@ public class AStarGraph
   public Node getApproximateNode(float x_, float z_)
   {
     //Ensure that x/z represent the bottom left corner of the tile
-    int x = (int)Math.floor(x_);
-    int z = (int)Math.ceil(z_);
+    int x = (int) Math.floor(x_);
+    int z = (int) Math.ceil(z_);
 
     approximateNodeFlag = true;
     float distance = Float.MAX_VALUE;
@@ -416,7 +478,9 @@ public class AStarGraph
   public Node getNode(int x, int z)
   {
     if ((x > x1) || (z > z1) || (x < x0) || (z < z0))
+    {
       return null;
+    }
 
     return nodes[xShift + x][zShift + z];
   }
@@ -430,7 +494,7 @@ public class AStarGraph
     ray.direction.y = p1y - p0y;
     ray.direction.z = p1z - p0z;
     ray.direction.nor();
-    return !staticTargetPool.collisonCheck(ray, distance);
+    return !collisionRenderablePool.collisonCheck(ray, distance);
   }
 
   public void createDebugRenderGraphics()
@@ -522,6 +586,8 @@ public class AStarGraph
   public void debugRender(RenderBatch renderBatch)
   {
     for (ModelInstance modelInstance : debugModelInstances)
+    {
       renderBatch.render(modelInstance);
+    }
   }
 }

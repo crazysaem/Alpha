@@ -28,7 +28,9 @@ public class Sky extends Renderable
   public void render(RenderBatch renderBatch)
   {
     if (loading)
+    {
       return;
+    }
 
     renderBatch.render(modelInstance, environment);
   }

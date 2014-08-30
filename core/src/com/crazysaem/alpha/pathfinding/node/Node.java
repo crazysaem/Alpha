@@ -10,10 +10,7 @@ public class Node
   public int z;
 
   //Connection to other Nodes
-  public Node
-      TL, T, TR,
-      L, R,
-      BL, B, BR;
+  public Node TL, T, TR, L, R, BL, B, BR;
 
   //Used for scoring:
   public Node parent;

@@ -22,7 +22,8 @@ public class CameraController extends CameraInputController
   @Override
   protected boolean process(float deltaX, float deltaY, int button)
   {
-    if (button == rotateButton) {
+    if (button == rotateButton)
+    {
       tmpV.set(camera.direction).crs(camera.up).y = 0f;
 
       deltaY *= rotateAngle;
@@ -37,22 +38,37 @@ public class CameraController extends CameraInputController
         camPositionXZProjected.nor();
         float currentAngle = (float) Math.acos(camPosition.dot(camPositionXZProjected)) * 57.3f;
         if (currentAngle - deltaY > 5.0f)
+        {
           camera.rotateAround(target, tmpV.nor(), deltaY);
+        }
       }
       else
       {
         camera.rotateAround(target, tmpV.nor(), deltaY);
       }
       camera.rotateAround(target, Vector3.Y, deltaX * -rotateAngle);
-    } else if (button == translateButton) {
+    }
+    else if (button == translateButton)
+    {
       camera.translate(tmpV.set(camera.direction).crs(camera.up).nor().scl(-deltaX * translateUnits));
       camera.translate(tmpV.set(camera.up).scl(-deltaY * translateUnits));
-      if (translateTarget) target.add(tmpV).add(tmpV);
-    } else if (button == forwardButton) {
-      camera.translate(tmpV.set(camera.direction).scl(deltaY * translateUnits));
-      if (forwardTarget) target.add(tmpV);
+      if (translateTarget)
+      {
+        target.add(tmpV).add(tmpV);
+      }
     }
-    if (autoUpdate) camera.update();
+    else if (button == forwardButton)
+    {
+      camera.translate(tmpV.set(camera.direction).scl(deltaY * translateUnits));
+      if (forwardTarget)
+      {
+        target.add(tmpV);
+      }
+    }
+    if (autoUpdate)
+    {
+      camera.update();
+    }
     return true;
   }
 }

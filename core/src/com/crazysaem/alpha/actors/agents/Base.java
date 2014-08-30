@@ -1,4 +1,4 @@
-package com.crazysaem.alpha.actors.furniture;
+package com.crazysaem.alpha.actors.agents;
 
 import com.badlogic.gdx.ai.Agent;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
@@ -7,46 +7,20 @@ import com.crazysaem.alpha.actors.protagonist.Elephant;
 import com.crazysaem.alpha.messages.ChangeAnimationMessage;
 import com.crazysaem.alpha.messages.FinishedMessage;
 import com.crazysaem.alpha.messages.MoveMessage;
-import com.crazysaem.alpha.pathfinding.Angle;
-import com.crazysaem.alpha.pathfinding.Position;
 import com.crazysaem.alpha.picking.CollisionRenderable;
 
 /**
- * Created by crazysaem on 07.06.2014.
+ * Created by crazysaem on 30.08.2014.
  */
-public class ArmChair extends CollisionRenderable implements Position, Angle, Agent
+public abstract class Base extends CollisionRenderable implements Agent
 {
-  @Override
-  protected void finishLoading()
-  {
-    super.finishLoading(false, "ArmChair");
-  }
-
-  @Override
-  public float getX()
-  {
-    return 0;
-  }
-
-  @Override
-  public float getZ()
-  {
-    return -3;
-  }
-
-  @Override
-  public float getAngle()
-  {
-    return 0;
-  }
-
   @Override
   public boolean handleMessage(Telegram msg)
   {
     if (msg.message == FinishedMessage.MESSAGE_CODE && msg.extraInfo instanceof FinishedMessage &&
         ((FinishedMessage) msg.extraInfo).getFinishedMessageCode() == MoveMessage.MESSAGE_CODE)
     {
-      MessageDispatcher.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.SITTING, 1, 1.0f));
+      MessageDispatcher.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.STANDING, -1, 1.0f));
 
       return true;
     }

@@ -1,5 +1,8 @@
 package com.crazysaem.alpha.actors.protagonist;
 
+import com.badlogic.gdx.ai.Agent;
+import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
@@ -7,22 +10,23 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.UVOffsetAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector3;
-import com.crazysaem.alpha.events.Event;
-import com.crazysaem.alpha.events.EventHandler;
-import com.crazysaem.alpha.events.MoveEvent;
 import com.crazysaem.alpha.graphics.RenderUtils;
 import com.crazysaem.alpha.graphics.Renderable;
-import com.crazysaem.alpha.pathfinding.AStarPosition;
+import com.crazysaem.alpha.messages.ChangeAnimationMessage;
+import com.crazysaem.alpha.messages.FinishedMessage;
+import com.crazysaem.alpha.messages.MoveMessage;
+import com.crazysaem.alpha.pathfinding.Position;
 import com.crazysaem.alpha.pathfinding.PositionPerTime;
 
 /**
  * Created by crazysaem on 23.05.2014.
  */
-public class Elephant extends Renderable implements EventHandler, AStarPosition, AnimationController.AnimationListener
+public class Elephant extends Renderable implements Agent, Position, AnimationController.AnimationListener
 {
-  private static final String IDLE = "idle";
-  private static final String WALK = "walk";
-  private static final String CARROT = "carrot";
+  public static final String NONE = "";
+  public static final String STANDING = "idle";
+  public static final String SITTING = "sitting";
+  public static final String WALKING = "walk";
 
   private Vector3 position, deltaPosition, initialDirection, direction, upVector;
   private PositionPerTime positionPerTime;
@@ -30,11 +34,12 @@ public class Elephant extends Renderable implements EventHandler, AStarPosition,
   private float faceAnimationTime;
   private boolean isMoving;
   private float directionAngle;
-  private ElephantPose currentPose, nextPose;
+  private String currentPose;
   private boolean animationInProgress;
   private int blinkingStep;
   private float uOffsetStep, vOffsetStep;
   private UVOffsetAttribute uvOffsetAttribute;
+  private Agent lastSender;
 
   protected void finishLoading()
   {
@@ -53,21 +58,25 @@ public class Elephant extends Renderable implements EventHandler, AStarPosition,
     }
 
     if ((selectedMaterial = RenderUtils.getMaterial(modelInstance, "Cap")) != null)
+    {
       RenderUtils.activateMipMap(selectedMaterial, "models/cap.jpg", Texture.TextureFilter.MipMapLinearLinear);
+    }
 
     if ((selectedMaterial = RenderUtils.getMaterial(modelInstance, "Scouter")) != null)
+    {
       selectedMaterial.set(new BlendingAttribute(true, 1.0f));
+    }
 
-    animationController.setAnimation(IDLE, -1);
+    animationController.setAnimation(STANDING, -1);
     position = new Vector3();
     deltaPosition = new Vector3();
     initialDirection = new Vector3(0.0f, 0.0f, 1.0f);
     direction = new Vector3(0.0f, 0.0f, 1.0f);
     upVector = new Vector3(0.0f, 1.0f, 0.0f);
     movePosition = new Vector3();
-    currentPose = ElephantPose.STANDING;
-    nextPose = ElephantPose.NONE;
+    currentPose = STANDING;
     animationInProgress = false;
+    lastSender = null;
   }
 
   @Override
@@ -76,7 +85,9 @@ public class Elephant extends Renderable implements EventHandler, AStarPosition,
     super.update(delta);
 
     if (animationInProgress || loading)
+    {
       return;
+    }
 
     faceAnimationTime += delta;
 
@@ -114,38 +125,19 @@ public class Elephant extends Renderable implements EventHandler, AStarPosition,
 
     if (isMoving)
     {
-      if (currentPose == ElephantPose.SITTING)
-      {
-        currentPose = ElephantPose.STANDING;
-        animationController.setAnimation("sitting", 1, -1.0f, this);
-        animationController.queue(WALK, -1, 1.0f, null, 0.0f);
-        animationInProgress = true;
-        return;
-      }
-
       if (positionPerTime.getPosition(2.0f, delta, movePosition))
       {
         isMoving = false;
         deltaPosition.x = 0.0f;
         deltaPosition.y = 0.0f;
         deltaPosition.z = 0.0f;
-        switch (nextPose)
-        {
-          case SITTING:
-            currentPose = ElephantPose.SITTING;
-            nextPose = ElephantPose.NONE;
-            animationController.setAnimation("sitting", 1, 1.0f, this);
-            animationInProgress = true;
-            direction.x = 0.0f;
-            direction.z = 0.0f;
-            direction = direction.nor();
-            modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).rotate(upVector, 0);
-            break;
 
-          default:
-            animationController.setAnimation(IDLE, -1);
-            break;
+        if (positionPerTime.getAngle() >= 0.0f)
+        {
+          modelInstance.transform.setToTranslation(position.x, 0.0f, position.z).rotate(upVector, positionPerTime.getAngle());
         }
+
+        MessageDispatcher.getInstance().dispatchMessage(0.0f, this, lastSender, FinishedMessage.MESSAGE_CODE, new FinishedMessage(MoveMessage.MESSAGE_CODE));
       }
       else
       {
@@ -157,7 +149,9 @@ public class Elephant extends Renderable implements EventHandler, AStarPosition,
 
         directionAngle = (float) Math.acos(initialDirection.dot(direction)) * 57.3f;
         if (direction.x < 0)
+        {
           directionAngle = 360 - directionAngle;
+        }
 
         modelInstance.transform.setToTranslation(movePosition.x, 0.0f, movePosition.z).rotate(upVector, directionAngle);
       }
@@ -168,42 +162,44 @@ public class Elephant extends Renderable implements EventHandler, AStarPosition,
   }
 
   @Override
-  public void handleEvent(Event event)
+  public boolean handleMessage(Telegram msg)
   {
-    if (event instanceof MoveEvent)
-    {
-      if (animationInProgress)
-        return;
+    lastSender = msg.sender;
 
-      MoveEvent moveEvent = (MoveEvent) event;
-      positionPerTime = moveEvent.getPositionPerTime();
-      if (currentPose == ElephantPose.STANDING)
-        animationController.setAnimation(WALK, -1);
-      if (moveEvent.getAction() == "SITTING")
-      {
-        nextPose = ElephantPose.SITTING;
-      }
-      isMoving = true;
-    }
-    else
+    if (msg.message == MoveMessage.MESSAGE_CODE && msg.extraInfo instanceof MoveMessage)
     {
-      String action = event.getAction();
+      MoveMessage moveMessage = (MoveMessage) msg.extraInfo;
+      positionPerTime = moveMessage.getPositionPerTime();
 
-      if (action.equals(WALK))
+      if (currentPose.equals(STANDING))
       {
-        animationController.animate(WALK, 5, null, 0.2f);
-        animationController.queue(IDLE, -1, 1.0f, null, 0.3f);
-      }
-      else if (action.equals(CARROT))
-      {
-        animationController.animate(CARROT, 1, null, 0.2f);
-        animationController.queue(IDLE, -1, 1.0f, null, 0.55f);
+        animationController.setAnimation(WALKING, -1);
       }
       else
       {
-        System.out.println("Pet received unknown event: " + event.getAction());
+        animationController.setAnimation(currentPose, 1, -1.0f, this);
+        animationController.queue(WALKING, -1, 1.0f, null, 0.05f);
+        animationInProgress = true;
+        currentPose = WALKING;
+      }
+
+      isMoving = true;
+
+      return true;
+    }
+    else if (msg.message == ChangeAnimationMessage.MESSAGE_CODE && msg.extraInfo instanceof ChangeAnimationMessage)
+    {
+      ChangeAnimationMessage switchPositionMessage = (ChangeAnimationMessage) msg.extraInfo;
+      currentPose = switchPositionMessage.getAnimation();
+      animationController.setAnimation(currentPose, switchPositionMessage.getLoopCount(), switchPositionMessage.getSpeed(), this);
+
+      if (switchPositionMessage.getLoopCount() >= 0)
+      {
+        animationInProgress = true;
       }
     }
+
+    return false;
   }
 
   public boolean isMoving()

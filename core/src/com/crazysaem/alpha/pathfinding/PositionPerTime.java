@@ -8,4 +8,6 @@ import com.badlogic.gdx.math.Vector3;
 public interface PositionPerTime
 {
   public boolean getPosition(float speed, float time, Vector3 position);
+
+  public float getAngle();
 }

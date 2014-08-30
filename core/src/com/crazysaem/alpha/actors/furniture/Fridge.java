@@ -7,12 +7,12 @@ import com.badlogic.gdx.graphics.g3d.attributes.PartialColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.crazysaem.alpha.graphics.RenderBatch;
 import com.crazysaem.alpha.graphics.RenderUtils;
-import com.crazysaem.alpha.picking.StaticRenderable;
+import com.crazysaem.alpha.picking.CollisionRenderable;
 
 /**
  * Created by crazysaem on 24.06.2014.
  */
-public class Fridge extends StaticRenderable implements AnimationController.AnimationListener
+public class Fridge extends CollisionRenderable implements AnimationController.AnimationListener
 {
   private Environment environment;
   private String[] animationIDs = {"fridge_open", "fridge_tray", "fridge_tray", "fridge_freezer", "fridge_freezer", "fridge_open"};
@@ -46,7 +46,9 @@ public class Fridge extends StaticRenderable implements AnimationController.Anim
   public void render(RenderBatch renderBatch)
   {
     if (loading)
+    {
       return;
+    }
 
     renderBatch.render(modelInstance, environment);
   }
@@ -58,9 +60,13 @@ public class Fridge extends StaticRenderable implements AnimationController.Anim
     currentAnimation = currentAnimation % 6;
 
     if (currentAnimation == 2 || currentAnimation == 4 || currentAnimation == 5)
+    {
       animationController.queue(animationIDs[currentAnimation], 1, -1.0f, this, 0.05f);
+    }
     else
+    {
       animationController.queue(animationIDs[currentAnimation], 1, 1.0f, this, 0.05f);
+    }
   }
 
   @Override

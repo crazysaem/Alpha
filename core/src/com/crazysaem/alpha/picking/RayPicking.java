@@ -1,9 +1,14 @@
 package com.crazysaem.alpha.picking;
 
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.ai.Agent;
+import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.crazysaem.alpha.events.*;
+import com.crazysaem.alpha.actors.outside.Ground;
+import com.crazysaem.alpha.messages.AStarMessage;
+import com.crazysaem.alpha.pathfinding.Position;
 
 /**
  * Created by crazysaem on 07.06.2014.
@@ -12,16 +17,14 @@ public class RayPicking implements InputProcessor
 {
   private int touchDownX, touchDownY;
   private Camera cam;
-  private EventManager eventManager;
-  private StaticTargetPool staticTargetPoolInteraction;
-  private StaticTargetPool staticTargetPoolObfuscation;
+  private CollisionRenderablePool collisionRenderablePoolInteraction;
+  private CollisionRenderablePool collisionRenderablePoolObfuscation;
 
-  public RayPicking(Camera cam, EventManager eventManager, StaticTargetPool staticTargetPoolInteraction, StaticTargetPool staticTargetPoolObfuscation)
+  public RayPicking(Camera cam, CollisionRenderablePool collisionRenderablePoolInteraction, CollisionRenderablePool collisionRenderablePoolObfuscation)
   {
     this.cam = cam;
-    this.eventManager = eventManager;
-    this.staticTargetPoolInteraction = staticTargetPoolInteraction;
-    this.staticTargetPoolObfuscation = staticTargetPoolObfuscation;
+    this.collisionRenderablePoolInteraction = collisionRenderablePoolInteraction;
+    this.collisionRenderablePoolObfuscation = collisionRenderablePoolObfuscation;
   }
 
   @Override
@@ -56,15 +59,43 @@ public class RayPicking implements InputProcessor
     if (touchDownX == screenX && touchDownY == screenY)
     {
       Ray ray = cam.getPickRay(screenX, screenY);
-      EventTarget eventTarget = staticTargetPoolInteraction.collisonCheck(ray);
-      if (eventTarget != null)
-      {
-        if (eventTarget == EventTarget.ASTAR_GROUND && staticTargetPoolObfuscation.collisonCheck(ray) != null)
-          return false;
 
-        eventManager.addEvent(new HitEvent(eventTarget, "TAP", staticTargetPoolInteraction.getLastIntersection()));
+      CollisionRenderable collisionRenderable = collisionRenderablePoolInteraction.collisonCheck(ray);
+      if (collisionRenderable != null)
+      {
+        //TODO: Terrible check! Possible fix is to change walls to always be 'cut off' so an obfuscation check isn't even necessary
+        if (collisionRenderable instanceof Ground)
+        {
+          CollisionRenderable collisionRenderableObfuscation = collisionRenderablePoolObfuscation.collisonCheck(ray);
+          if (collisionRenderableObfuscation != null)
+          {
+//            float collisionDistance = cam.position.dst(collisionRenderablePoolInteraction.getLastIntersection());
+//            float collisionObfuscationDistance = cam.position.dst(collisionRenderablePoolObfuscation.getLastIntersection());
+//            if (collisionObfuscationDistance < collisionDistance)
+              return false;
+          }
+        }
+
+        AStarMessage aStarMessage;
+        if (collisionRenderable instanceof Position)
+        {
+          Position position = (Position) collisionRenderable;
+          aStarMessage = new AStarMessage(position.getX(), position.getZ());
+        }
+        else
+        {
+          Vector3 lastIntersection = collisionRenderablePoolInteraction.getLastIntersection();
+          aStarMessage = new AStarMessage(lastIntersection.x, lastIntersection.z);
+        }
+
+        Agent sender = null;
+        if (collisionRenderable instanceof Agent)
+          sender = (Agent) collisionRenderable;
+
+        MessageDispatcher.getInstance().dispatchMessage(0.0f, sender, null, AStarMessage.MESSAGE_CODE, aStarMessage);
       }
     }
+
     return false;
   }
 

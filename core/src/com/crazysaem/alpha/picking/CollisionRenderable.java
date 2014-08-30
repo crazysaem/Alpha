@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
@@ -16,13 +15,13 @@ import java.nio.ShortBuffer;
 /**
  * Created by crazysaem on 07.06.2014.
  */
-public abstract class StaticRenderable extends Renderable
+public abstract class CollisionRenderable extends Renderable
 {
+  protected boolean hasArmature = false;
   private BoundingBox boundingBox = new BoundingBox();
   private float[] vertices;
   private short[] indices;
   private Vector3 intersection = new Vector3();
-  protected boolean hasArmature = false;
 
   public float collisionTest(Ray ray)
   {
@@ -45,7 +44,9 @@ public abstract class StaticRenderable extends Renderable
       {
         float distanceTest = Math.abs(ray.origin.dst(intersection));
         if (distance > distanceTest)
+        {
           return true;
+        }
       }
     }
 
@@ -75,8 +76,12 @@ public abstract class StaticRenderable extends Renderable
 
     //Get total number of indices
     for (Node node : modelInstance.nodes)
+    {
       for (NodePart nodePart : node.parts)
+      {
         numIndices += nodePart.meshPart.numVertices;
+      }
+    }
 
     indices = new short[numIndices];
 
@@ -142,7 +147,9 @@ public abstract class StaticRenderable extends Renderable
     for (int i = startIndex; i < endIndex; i++)
     {
       if (array[i] > max)
+      {
         max = array[i];
+      }
     }
 
     return max;
