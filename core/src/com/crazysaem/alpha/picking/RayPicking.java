@@ -10,6 +10,8 @@ import com.crazysaem.alpha.actors.outside.Ground;
 import com.crazysaem.alpha.messages.AStarMessage;
 import com.crazysaem.alpha.pathfinding.Position;
 
+import java.util.List;
+
 /**
  * Created by crazysaem on 07.06.2014.
  */
@@ -18,13 +20,15 @@ public class RayPicking implements InputProcessor
   private int touchDownX, touchDownY;
   private Camera cam;
   private CollisionRenderablePool collisionRenderablePoolInteraction;
-  private CollisionRenderablePool collisionRenderablePoolObfuscation;
+  private CollisionRenderablePool staticTargetPoolObfuscation;
+  private List<CollisionRenderable> collisionObfuscatedRenderables;
 
-  public RayPicking(Camera cam, CollisionRenderablePool collisionRenderablePoolInteraction, CollisionRenderablePool collisionRenderablePoolObfuscation)
+  public RayPicking(Camera cam, CollisionRenderablePool collisionRenderablePoolInteraction, CollisionRenderablePool staticTargetPoolObfuscation, List<CollisionRenderable> collisionObfuscatedRenderables)
   {
     this.cam = cam;
     this.collisionRenderablePoolInteraction = collisionRenderablePoolInteraction;
-    this.collisionRenderablePoolObfuscation = collisionRenderablePoolObfuscation;
+    this.staticTargetPoolObfuscation = staticTargetPoolObfuscation;
+    this.collisionObfuscatedRenderables = collisionObfuscatedRenderables;
   }
 
   @Override
@@ -64,17 +68,8 @@ public class RayPicking implements InputProcessor
       if (collisionRenderable != null)
       {
         //TODO: Terrible check! Possible fix is to change walls to always be 'cut off' so an obfuscation check isn't even necessary
-        if (collisionRenderable instanceof Ground)
-        {
-          CollisionRenderable collisionRenderableObfuscation = collisionRenderablePoolObfuscation.collisonCheck(ray);
-          if (collisionRenderableObfuscation != null)
-          {
-//            float collisionDistance = cam.position.dst(collisionRenderablePoolInteraction.getLastIntersection());
-//            float collisionObfuscationDistance = cam.position.dst(collisionRenderablePoolObfuscation.getLastIntersection());
-//            if (collisionObfuscationDistance < collisionDistance)
-              return false;
-          }
-        }
+        if (collisionObfuscatedRenderables.contains(collisionRenderable) && staticTargetPoolObfuscation.collisonCheck(ray) != null)
+          return false;
 
         AStarMessage aStarMessage;
         if (collisionRenderable instanceof Position)

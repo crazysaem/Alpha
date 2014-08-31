@@ -25,6 +25,7 @@ import com.crazysaem.alpha.messages.MessageDispatcherUtil;
 import com.crazysaem.alpha.messages.MoveMessage;
 import com.crazysaem.alpha.pathfinding.AStarGraph;
 import com.crazysaem.alpha.pathfinding.AStarPathFinding;
+import com.crazysaem.alpha.picking.CollisionRenderable;
 import com.crazysaem.alpha.picking.CollisionRenderablePool;
 import com.crazysaem.alpha.picking.RayPicking;
 
@@ -81,18 +82,15 @@ public class World implements Disposable
     renderables.addAll(Arrays.asList(elephant, carrot, armChair, fridge, sky, ground, floor, walls));
 
     CollisionRenderablePool collisionRenderablePoolGraph = new CollisionRenderablePool(walls, armChair, fridge);
-
     aStarGraph = new AStarGraph(collisionRenderablePoolGraph);
     AStarPathFinding aStarPathFinding = new AStarPathFinding(aStarGraph, elephant);
     MessageDispatcherUtil.addListeners(AStarMessage.MESSAGE_CODE, aStarPathFinding);
     MessageDispatcherUtil.addListeners(MoveMessage.MESSAGE_CODE, elephant);
 
     CollisionRenderablePool collisionRenderablePoolInteraction = new CollisionRenderablePool(ground, floor, armChair);
-    CollisionRenderablePool collisionRenderablePoolObfuscation = new CollisionRenderablePool(walls);
-
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
-    inputMultiplexer.addProcessor(new RayPicking(cam, collisionRenderablePoolInteraction, collisionRenderablePoolObfuscation));
+    inputMultiplexer.addProcessor(new RayPicking(cam, collisionRenderablePoolInteraction, new CollisionRenderablePool(walls), Arrays.<CollisionRenderable>asList(ground)));
     inputMultiplexer.addProcessor(camController);
     Gdx.input.setInputProcessor(inputMultiplexer);
   }
