@@ -1,8 +1,8 @@
 package com.crazysaem.alpha.pathfinding;
 
-import com.badlogic.gdx.ai.Agent;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import com.crazysaem.alpha.messages.AStarMessage;
 import com.crazysaem.alpha.messages.MoveMessage;
 import com.crazysaem.alpha.pathfinding.node.Node;
@@ -16,7 +16,7 @@ import java.util.TreeSet;
 /**
  * Created by crazysaem on 14.06.2014.
  */
-public class AStarPathFinding implements Agent
+public class AStarPathFinding implements Telegraph
 {
   private AStarGraph aStarGraph;
   private HashMap<Node, Node> closedList;
@@ -186,11 +186,5 @@ public class AStarPathFinding implements Agent
     }
 
     return null;
-  }
-
-  @Override
-  public void update(float delta)
-  {
-
   }
 }

@@ -1,8 +1,8 @@
 package com.crazysaem.alpha.actors.furniture;
 
-import com.badlogic.gdx.ai.Agent;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
 import com.crazysaem.alpha.messages.ChangeAnimationMessage;
 import com.crazysaem.alpha.messages.FinishedMessage;
@@ -14,7 +14,7 @@ import com.crazysaem.alpha.picking.CollisionRenderable;
 /**
  * Created by crazysaem on 07.06.2014.
  */
-public class ArmChair extends CollisionRenderable implements Position, Angle, Agent
+public class ArmChair extends CollisionRenderable implements Position, Angle, Telegraph
 {
   @Override
   protected void finishLoading()

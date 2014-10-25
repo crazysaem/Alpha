@@ -107,7 +107,7 @@ public class World implements Disposable
   public void update(float delta)
   {
     camController.update();
-    MessageDispatcher.getInstance().dispatchDelayedMessages();
+    MessageDispatcher.getInstance().update(delta);
     hud.update(delta);
     for (Renderable renderable : renderables)
     {

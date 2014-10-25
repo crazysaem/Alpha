@@ -1,8 +1,8 @@
 package com.crazysaem.alpha.picking;
 
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.ai.Agent;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -83,9 +83,9 @@ public class RayPicking implements InputProcessor
           aStarMessage = new AStarMessage(lastIntersection.x, lastIntersection.z);
         }
 
-        Agent sender = null;
-        if (collisionRenderable instanceof Agent)
-          sender = (Agent) collisionRenderable;
+        Telegraph sender = null;
+        if (collisionRenderable instanceof Telegraph)
+          sender = (Telegraph) collisionRenderable;
 
         MessageDispatcher.getInstance().dispatchMessage(0.0f, sender, null, AStarMessage.MESSAGE_CODE, aStarMessage);
       }

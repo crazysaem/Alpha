@@ -1,13 +1,13 @@
 package com.crazysaem.alpha.actors.protagonist;
 
-import com.badlogic.gdx.ai.Agent;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.UVOffsetAttribute;
+//import com.badlogic.gdx.graphics.g3d.attributes.UVOffsetAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.graphics.RenderUtils;
@@ -21,7 +21,7 @@ import com.crazysaem.alpha.pathfinding.PositionPerTime;
 /**
  * Created by crazysaem on 23.05.2014.
  */
-public class Elephant extends Renderable implements Agent, Position, AnimationController.AnimationListener
+public class Elephant extends Renderable implements Telegraph, Position, AnimationController.AnimationListener
 {
   public static final String NONE = "";
   public static final String STANDING = "idle";
@@ -38,8 +38,8 @@ public class Elephant extends Renderable implements Agent, Position, AnimationCo
   private boolean animationInProgress;
   private int blinkingStep;
   private float uOffsetStep, vOffsetStep;
-  private UVOffsetAttribute uvOffsetAttribute;
-  private Agent lastSender;
+//  private UVOffsetAttribute uvOffsetAttribute;
+  private Telegraph lastSender;
 
   protected void finishLoading()
   {
@@ -47,12 +47,12 @@ public class Elephant extends Renderable implements Agent, Position, AnimationCo
 
     uOffsetStep = 144.0f / 512.0f;
     vOffsetStep = 219.0f / 512.0f;
-    uvOffsetAttribute = new UVOffsetAttribute(0.0f, 0.0f);
+//    uvOffsetAttribute = new UVOffsetAttribute(0.0f, 0.0f);
 
     Material selectedMaterial;
     if ((selectedMaterial = RenderUtils.getMaterial(modelInstance, "ElephantFace")) != null)
     {
-      selectedMaterial.set(uvOffsetAttribute);
+//      selectedMaterial.set(uvOffsetAttribute);
       selectedMaterial.set(new BlendingAttribute(true, 1.0f));
       selectedMaterial.set(new DepthTestAttribute(0));
     }
@@ -97,27 +97,27 @@ public class Elephant extends Renderable implements Agent, Position, AnimationCo
       {
         blinkingStep++;
 
-        switch (blinkingStep)
-        {
-          case 1:
-            uvOffsetAttribute.u = uOffsetStep;
-            break;
-
-          case 2:
-            uvOffsetAttribute.u = uOffsetStep * 2;
-            break;
-
-          case 3:
-            uvOffsetAttribute.u = 0.0f;
-            uvOffsetAttribute.v = vOffsetStep;
-            break;
-
-          case 4:
-            uvOffsetAttribute.u = 0.0f;
-            uvOffsetAttribute.v = 0.0f;
-            blinkingStep = 0;
-            break;
-        }
+//        switch (blinkingStep)
+//        {
+//          case 1:
+//            uvOffsetAttribute.u = uOffsetStep;
+//            break;
+//
+//          case 2:
+//            uvOffsetAttribute.u = uOffsetStep * 2;
+//            break;
+//
+//          case 3:
+//            uvOffsetAttribute.u = 0.0f;
+//            uvOffsetAttribute.v = vOffsetStep;
+//            break;
+//
+//          case 4:
+//            uvOffsetAttribute.u = 0.0f;
+//            uvOffsetAttribute.v = 0.0f;
+//            blinkingStep = 0;
+//            break;
+//        }
 
         faceAnimationTime = 0.0f;
       }

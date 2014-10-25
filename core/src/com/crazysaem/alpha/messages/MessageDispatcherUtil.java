@@ -1,18 +1,18 @@
 package com.crazysaem.alpha.messages;
 
-import com.badlogic.gdx.ai.Agent;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.Telegraph;
 
 /**
  * Created by crazysaem on 13.08.2014.
  */
 public class MessageDispatcherUtil
 {
-  public static void addListeners(int msg, Agent... listeners)
+  public static void addListeners(int msg, Telegraph... listeners)
   {
-    for (Agent listener : listeners)
+    for (Telegraph listener : listeners)
     {
-      MessageDispatcher.getInstance().addListener(msg, listener);
+      MessageDispatcher.getInstance().addListener(listener, msg);
     }
   }
 }

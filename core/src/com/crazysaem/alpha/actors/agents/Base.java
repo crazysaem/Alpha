@@ -1,8 +1,8 @@
 package com.crazysaem.alpha.actors.agents;
 
-import com.badlogic.gdx.ai.Agent;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
 import com.crazysaem.alpha.messages.ChangeAnimationMessage;
 import com.crazysaem.alpha.messages.FinishedMessage;
@@ -12,7 +12,7 @@ import com.crazysaem.alpha.picking.CollisionRenderable;
 /**
  * Created by crazysaem on 30.08.2014.
  */
-public abstract class Base extends CollisionRenderable implements Agent
+public abstract class Base extends CollisionRenderable implements Telegraph
 {
   @Override
   public boolean handleMessage(Telegram msg)
