@@ -1,9 +1,10 @@
 *
 !.gitignore
+!build.gradle
+!copy_jars.bat
+!credits.txt
 !gdx-setup-1.4.1.jar
 !README
-!credits.txt
-!build.gradle
 !android/
 !android/*
 !core/
