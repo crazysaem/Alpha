@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
-//import com.badlogic.gdx.graphics.g3d.attributes.UVOffsetAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.graphics.RenderUtils;
@@ -38,7 +38,7 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
   private boolean animationInProgress;
   private int blinkingStep;
   private float uOffsetStep, vOffsetStep;
-//  private UVOffsetAttribute uvOffsetAttribute;
+  private TextureAttribute textureAttributeElephantFace;
   private Telegraph lastSender;
 
   protected void finishLoading()
@@ -47,12 +47,11 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
 
     uOffsetStep = 144.0f / 512.0f;
     vOffsetStep = 219.0f / 512.0f;
-//    uvOffsetAttribute = new UVOffsetAttribute(0.0f, 0.0f);
 
     Material selectedMaterial;
     if ((selectedMaterial = RenderUtils.getMaterial(modelInstance, "ElephantFace")) != null)
     {
-//      selectedMaterial.set(uvOffsetAttribute);
+      textureAttributeElephantFace = (TextureAttribute) selectedMaterial.get(TextureAttribute.Diffuse);
       selectedMaterial.set(new BlendingAttribute(true, 1.0f));
       selectedMaterial.set(new DepthTestAttribute(0));
     }
@@ -97,27 +96,27 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
       {
         blinkingStep++;
 
-//        switch (blinkingStep)
-//        {
-//          case 1:
-//            uvOffsetAttribute.u = uOffsetStep;
-//            break;
-//
-//          case 2:
-//            uvOffsetAttribute.u = uOffsetStep * 2;
-//            break;
-//
-//          case 3:
-//            uvOffsetAttribute.u = 0.0f;
-//            uvOffsetAttribute.v = vOffsetStep;
-//            break;
-//
-//          case 4:
-//            uvOffsetAttribute.u = 0.0f;
-//            uvOffsetAttribute.v = 0.0f;
-//            blinkingStep = 0;
-//            break;
-//        }
+        switch (blinkingStep)
+        {
+          case 1:
+            textureAttributeElephantFace.offsetU = uOffsetStep;
+            break;
+
+          case 2:
+            textureAttributeElephantFace.offsetU = uOffsetStep * 2;
+            break;
+
+          case 3:
+            textureAttributeElephantFace.offsetU = 0.0f;
+            textureAttributeElephantFace.offsetV = vOffsetStep;
+            break;
+
+          case 4:
+            textureAttributeElephantFace.offsetU = 0.0f;
+            textureAttributeElephantFace.offsetV = 0.0f;
+            blinkingStep = 0;
+            break;
+        }
 
         faceAnimationTime = 0.0f;
       }
