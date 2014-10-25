@@ -13,7 +13,7 @@ http://developer.android.com/sdk/index.html
 https://code.google.com/p/google-web-toolkit/
 
 Inspired by:
-	Modeling:
+	Modelling:
 	http://cgcookie.com/blender/cgc-courses/create-a-cute-little-elephant-character/
 
 	Algorithms:
