@@ -1,17 +1,17 @@
 Tutorial for initial checkout:
 
-(Note: LibGDX 1.2.0 was used)
-Copy gdx-setup-1.2.0.jar to empty directory.
+(Note: LibGDX 1.4.1 was used)
+Copy gdx-setup-1.4.1.jar to empty directory.
 Generate a project with the following settings:
 
 Name: 			  Alpha
 Package: 		  com.crazysaem.alpha
-Game class: 	AlphaGame
+Game class: 	  AlphaGame
 
 (The ones below could be changed):
-LibGDX Version:	Release 1.2.0
+LibGDX Version:	Release 1.4.1
 Sub Projects:	Desktop, Android, Html
-Extensions:		<None>
+Extensions:		Ai
 
 PRESS Generate!
 
