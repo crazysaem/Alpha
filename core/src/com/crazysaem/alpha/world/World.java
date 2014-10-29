@@ -87,7 +87,7 @@ public class World implements Disposable
     MessageDispatcherUtil.addListeners(AStarMessage.MESSAGE_CODE, aStarPathFinding);
     MessageDispatcherUtil.addListeners(MoveMessage.MESSAGE_CODE, elephant);
 
-    CollisionRenderablePool collisionRenderablePoolInteraction = new CollisionRenderablePool(ground, floor, armChair);
+    CollisionRenderablePool collisionRenderablePoolInteraction = new CollisionRenderablePool(ground, floor, armChair, fridge);
     InputMultiplexer inputMultiplexer = new InputMultiplexer();
     inputMultiplexer.addProcessor(hud.getInputProcessor());
     inputMultiplexer.addProcessor(new RayPicking(cam, collisionRenderablePoolInteraction, new CollisionRenderablePool(walls), Arrays.<CollisionRenderable>asList(ground)));

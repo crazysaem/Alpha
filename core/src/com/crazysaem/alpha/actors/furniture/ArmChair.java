@@ -25,13 +25,13 @@ public class ArmChair extends CollisionRenderable implements Position, Angle, Te
   @Override
   public float getX()
   {
-    return 0;
+    return 0.0f;
   }
 
   @Override
   public float getZ()
   {
-    return -3;
+    return -3.0f;
   }
 
   @Override
