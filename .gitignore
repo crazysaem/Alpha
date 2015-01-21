@@ -2,6 +2,7 @@
 !.gitignore
 !build.gradle
 !copy_jars.bat
+!copy_jars.sh
 !credits.txt
 !gdx-setup-1.4.1.jar
 !README
