@@ -111,7 +111,7 @@ public class Fridge extends CollisionRenderable implements AnimationController.A
       animationController.setAnimation(animationIDs[0], 1, 1.0f, this);
       animationController.queue(animationIDs[0], 1, -1.0f, this, 0.05f);
 
-      MessageDispatcher.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.STANDING, 1, 1.0f));
+      MessageDispatcher.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.STANDING, -1, 1.0f));
 
       return true;
     }
