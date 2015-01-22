@@ -169,14 +169,14 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
       {
         animationController.setAnimation(WALKING, -1);
       }
-      else
+      else if (currentPose.equals(SITTING))
       {
         animationController.setAnimation(currentPose, 1, -1.0f, this);
         animationController.queue(WALKING, -1, 1.0f, null, 0.05f);
         animationInProgress = true;
-        currentPose = WALKING;
       }
 
+      currentPose = WALKING;
       isMoving = true;
 
       return true;
