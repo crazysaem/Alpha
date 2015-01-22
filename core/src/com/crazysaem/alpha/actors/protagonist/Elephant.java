@@ -83,11 +83,6 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
   {
     super.update(delta);
 
-    if (animationInProgress || loading)
-    {
-      return;
-    }
-
     faceAnimationTime += delta;
 
     if (faceAnimationTime > 2.0f || blinkingStep > 0)
@@ -122,7 +117,7 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
       }
     }
 
-    if (isMoving)
+    if (isMoving && !animationInProgress)
     {
       if (positionPerTime.getPosition(2.0f, delta, movePosition))
       {
