@@ -34,7 +34,7 @@ public class HUD implements Disposable
 
     font = new BitmapFont();
 
-    indicator = new HUDIndicator("icons/carrot/alpha.png", "icons/carrot/base.png", "icons/carrot/outline.png");
+    indicator = new HUDIndicator(HudIndicatorType.HUNGER, "icons/carrot/alpha.png", "icons/carrot/base.png", "icons/carrot/outline.png");
     table.add(indicator);
 
     table.bottom().left();
@@ -42,12 +42,12 @@ public class HUD implements Disposable
 
   public void update(float delta)
   {
-    if (indicator.getvalue() >= 1.0f)
-    {
-      indicator.setValue(0.0f);
-    }
-
-    indicator.setValue(indicator.getvalue() + delta * 0.5f);
+//    if (indicator.getvalue() >= 1.0f)
+//    {
+//      indicator.setValue(0.0f);
+//    }
+//
+//    indicator.setValue(indicator.getvalue() + delta * 0.5f);
     stage.act(delta);
   }
 

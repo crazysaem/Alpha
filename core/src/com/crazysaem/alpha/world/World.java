@@ -106,14 +106,6 @@ public class World implements Disposable
 
   public void update(float delta)
   {
-    camController.update();
-    MessageDispatcher.getInstance().update(delta);
-    hud.update(delta);
-    for (Renderable renderable : renderables)
-    {
-      renderable.update(delta);
-    }
-
     if (!finishedLoading)
     {
       for (Renderable renderable : renderables)
@@ -125,6 +117,15 @@ public class World implements Disposable
       }
 
       finishedLoading();
+    }
+
+    camController.update();
+    MessageDispatcher.getInstance().update(delta);
+    hud.update(delta);
+
+    for (Renderable renderable : renderables)
+    {
+      renderable.update(delta);
     }
 
     if (elephant.isMoving())

@@ -42,18 +42,6 @@ public abstract class Renderable implements Disposable
 
   public void update(float delta)
   {
-    if (loading)
-    {
-      if (assetManager.isReady())
-      {
-        finishLoading();
-      }
-      else
-      {
-        return;
-      }
-    }
-
     if (animationController != null)
     {
       animationController.update(delta);
@@ -72,7 +60,19 @@ public abstract class Renderable implements Disposable
 
   public boolean isFinished()
   {
-    return !loading;
+    if (loading)
+    {
+      if (assetManager.isReady())
+      {
+        finishLoading();
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   @Override

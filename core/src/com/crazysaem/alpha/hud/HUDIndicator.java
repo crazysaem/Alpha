@@ -1,30 +1,37 @@
 package com.crazysaem.alpha.hud;
 
+import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.crazysaem.alpha.messages.HudIndicatorMessage;
+import com.crazysaem.alpha.messages.MessageDispatcherUtil;
 
 /**
  * Created by crazysaem on 15.07.2014.
  */
-public class HUDIndicator extends Image
+public class HUDIndicator extends Image implements Telegraph
 {
-  public int test;
-  private Texture baseTexturer;
+  private Texture baseTexture;
   private TextureRegionDrawable outlineTextureDrawable;
   private float value;
+  private HudIndicatorType type;
 
-  public HUDIndicator(String alpha, String base, String outline)
+  public HUDIndicator(HudIndicatorType type, String alpha, String base, String outline)
   {
     super(new Texture(alpha));
 
-    baseTexturer = new Texture(base);
+    this.type = type;
+
+    baseTexture = new Texture(base);
     outlineTextureDrawable = new TextureRegionDrawable(new TextureRegion(new Texture(outline)));
 
-    test = 0;
-    setValue(0.75f);
+    MessageDispatcherUtil.addListeners(HudIndicatorMessage.MESSAGE_CODE, this);
+
+    setValue(1.0f);
   }
 
   @Override
@@ -32,8 +39,7 @@ public class HUDIndicator extends Image
   {
     super.draw(batch, parentAlpha);
 
-    //batch.draw(baseTexturer, getX() + getImageX(), getY() + getImageY() - baseTexturer.getHeight() * value, 0, baseTexturer.getHeight() * value, baseTexturer.getWidth(), baseTexturer.getHeight(), 1.0f, 1.0f, 0.0f, 0, (int)(baseTexturer.getHeight() * value), baseTexturer.getWidth(), baseTexturer.getHeight(), false, false);
-    batch.draw(baseTexturer, getX() + getImageX(), getY() + getImageY() - (int) (baseTexturer.getHeight() * value), 0, (int) (baseTexturer.getHeight() * value), baseTexturer.getWidth(), baseTexturer.getHeight(), 1.0f, 1.0f, 0.0f, 0, (int) (baseTexturer.getHeight() * value), baseTexturer.getWidth(), baseTexturer.getHeight(), false, false);
+    batch.draw(baseTexture, getX() + getImageX(), getY() + getImageY() - (int) (baseTexture.getHeight() * value), 0, (int) (baseTexture.getHeight() * value), baseTexture.getWidth(), baseTexture.getHeight(), 1.0f, 1.0f, 0.0f, 0, (int) (baseTexture.getHeight() * value), baseTexture.getWidth(), baseTexture.getHeight(), false, false);
     outlineTextureDrawable.draw(batch, getX() + getImageX(), getY() + getImageY(), getImageWidth() * getScaleX(), getImageHeight() * getScaleY());
   }
 
@@ -45,5 +51,23 @@ public class HUDIndicator extends Image
   public float getvalue()
   {
     return (1 - value);
+  }
+
+  @Override
+  public boolean handleMessage(Telegram msg)
+  {
+    if (msg.message == HudIndicatorMessage.MESSAGE_CODE)
+    {
+      HudIndicatorMessage hudIndicatorMessage = (HudIndicatorMessage) msg.extraInfo;
+
+      if (!hudIndicatorMessage.getHudIndicatorType().equals(type))
+        return false;
+
+      setValue(hudIndicatorMessage.getValue());
+
+      return true;
+    }
+
+    return false;
   }
 }

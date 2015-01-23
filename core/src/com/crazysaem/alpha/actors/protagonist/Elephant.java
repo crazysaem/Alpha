@@ -12,9 +12,8 @@ import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.graphics.RenderUtils;
 import com.crazysaem.alpha.graphics.Renderable;
-import com.crazysaem.alpha.messages.ChangeAnimationMessage;
-import com.crazysaem.alpha.messages.FinishedMessage;
-import com.crazysaem.alpha.messages.MoveMessage;
+import com.crazysaem.alpha.hud.HudIndicatorType;
+import com.crazysaem.alpha.messages.*;
 import com.crazysaem.alpha.pathfinding.Position;
 import com.crazysaem.alpha.pathfinding.PositionPerTime;
 
@@ -40,10 +39,16 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
   private float uOffsetStep, vOffsetStep;
   private TextureAttribute textureAttributeElephantFace;
   private Telegraph lastSender;
+  private float nextHungerDecreaseInSeconds;
+  private float hunger;
+  private float hungerTime;
 
   protected void finishLoading()
   {
     super.finishLoading("Scouter", "Elephant", "ElephantFace", "Cap", "TShirt", "Trousers", "ElephantArmature");
+
+    hunger = 1.0f;
+    nextHungerDecreaseInSeconds = 10.0f;
 
     uOffsetStep = 144.0f / 512.0f;
     vOffsetStep = 219.0f / 512.0f;
@@ -78,10 +83,27 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
     lastSender = null;
   }
 
+  private void decreaseHunger(float delta)
+  {
+    hunger -= delta;
+    if (hunger < 0.0f)
+      hunger = 0.0f;
+  }
+
   @Override
   public void update(float delta)
   {
     super.update(delta);
+
+    hungerTime += delta;
+
+    if (hungerTime > nextHungerDecreaseInSeconds)
+    {
+      hungerTime = 0.0f;
+      decreaseHunger(0.05f);
+      HudIndicatorMessage hudIndicatorMessage = new HudIndicatorMessage(HudIndicatorType.HUNGER, hunger);
+      MessageDispatcher.getInstance().dispatchMessage(this, null, HudIndicatorMessage.MESSAGE_CODE, hudIndicatorMessage);
+    }
 
     faceAnimationTime += delta;
 
