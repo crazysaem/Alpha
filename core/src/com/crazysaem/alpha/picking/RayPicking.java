@@ -1,12 +1,11 @@
 package com.crazysaem.alpha.picking;
 
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.crazysaem.alpha.actors.outside.Ground;
 import com.crazysaem.alpha.messages.AStarMessage;
 import com.crazysaem.alpha.pathfinding.Position;
 
@@ -87,7 +86,7 @@ public class RayPicking implements InputProcessor
         if (collisionRenderable instanceof Telegraph)
           sender = (Telegraph) collisionRenderable;
 
-        MessageDispatcher.getInstance().dispatchMessage(0.0f, sender, null, AStarMessage.MESSAGE_CODE, aStarMessage);
+        MessageManager.getInstance().dispatchMessage(0.0f, sender, null, AStarMessage.MESSAGE_CODE, aStarMessage);
       }
     }
 

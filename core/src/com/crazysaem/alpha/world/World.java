@@ -2,7 +2,7 @@ package com.crazysaem.alpha.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.utils.Disposable;
@@ -120,7 +120,7 @@ public class World implements Disposable
     }
 
     camController.update();
-    MessageDispatcher.getInstance().update(delta);
+    MessageManager.getInstance().update(delta);
     hud.update(delta);
 
     for (Renderable renderable : renderables)

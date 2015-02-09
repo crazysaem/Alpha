@@ -1,6 +1,6 @@
 package com.crazysaem.alpha.actors.agents;
 
-import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
@@ -20,7 +20,7 @@ public abstract class Base extends CollisionRenderable implements Telegraph
     if (msg.message == FinishedMessage.MESSAGE_CODE && msg.extraInfo instanceof FinishedMessage &&
         ((FinishedMessage) msg.extraInfo).getFinishedMessageCode() == MoveMessage.MESSAGE_CODE)
     {
-      MessageDispatcher.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.STANDING, -1, 1.0f));
+      MessageManager.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.STANDING, -1, 1.0f));
 
       return true;
     }

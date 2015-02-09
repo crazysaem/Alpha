@@ -1,6 +1,6 @@
 package com.crazysaem.alpha.pathfinding;
 
-import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.crazysaem.alpha.messages.AStarMessage;
@@ -50,12 +50,12 @@ public class AStarPathFinding implements Telegraph
         }
 
         MoveMessage moveMessage = new MoveMessage(path);
-        MessageDispatcher.getInstance().dispatchMessage(0.0f, msg.sender, null, MoveMessage.MESSAGE_CODE, moveMessage);
+        MessageManager.getInstance().dispatchMessage(0.0f, msg.sender, null, MoveMessage.MESSAGE_CODE, moveMessage);
         return true;
       }
       else
       {
-        MessageDispatcher.getInstance().dispatchMessage(0.0f, this, msg.sender, FinishedMessage.MESSAGE_CODE, new FinishedMessage(MoveMessage.MESSAGE_CODE));
+        MessageManager.getInstance().dispatchMessage(0.0f, this, msg.sender, FinishedMessage.MESSAGE_CODE, new FinishedMessage(MoveMessage.MESSAGE_CODE));
       }
 
       return false;

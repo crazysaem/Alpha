@@ -1,6 +1,6 @@
 package com.crazysaem.alpha.messages;
 
-import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegraph;
 
 /**
@@ -12,7 +12,7 @@ public class MessageDispatcherUtil
   {
     for (Telegraph listener : listeners)
     {
-      MessageDispatcher.getInstance().addListener(listener, msg);
+      MessageManager.getInstance().addListener(listener, msg);
     }
   }
 }

@@ -1,6 +1,6 @@
 package com.crazysaem.alpha.actors.protagonist;
 
-import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.Texture;
@@ -13,7 +13,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.crazysaem.alpha.graphics.RenderUtils;
 import com.crazysaem.alpha.graphics.Renderable;
 import com.crazysaem.alpha.hud.HudIndicatorType;
-import com.crazysaem.alpha.messages.*;
+import com.crazysaem.alpha.messages.ChangeAnimationMessage;
+import com.crazysaem.alpha.messages.FinishedMessage;
+import com.crazysaem.alpha.messages.HudIndicatorMessage;
+import com.crazysaem.alpha.messages.MoveMessage;
 import com.crazysaem.alpha.pathfinding.Position;
 import com.crazysaem.alpha.pathfinding.PositionPerTime;
 
@@ -102,7 +105,7 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
       hungerTime = 0.0f;
       decreaseHunger(0.05f);
       HudIndicatorMessage hudIndicatorMessage = new HudIndicatorMessage(HudIndicatorType.HUNGER, hunger);
-      MessageDispatcher.getInstance().dispatchMessage(this, null, HudIndicatorMessage.MESSAGE_CODE, hudIndicatorMessage);
+      MessageManager.getInstance().dispatchMessage(this, null, HudIndicatorMessage.MESSAGE_CODE, hudIndicatorMessage);
     }
 
     faceAnimationTime += delta;
@@ -153,7 +156,7 @@ public class Elephant extends Renderable implements Telegraph, Position, Animati
           modelInstance.transform.setToTranslation(position.x, 0.0f, position.z).rotate(upVector, positionPerTime.getAngle());
         }
 
-        MessageDispatcher.getInstance().dispatchMessage(0.0f, this, lastSender, FinishedMessage.MESSAGE_CODE, new FinishedMessage(MoveMessage.MESSAGE_CODE));
+        MessageManager.getInstance().dispatchMessage(0.0f, this, lastSender, FinishedMessage.MESSAGE_CODE, new FinishedMessage(MoveMessage.MESSAGE_CODE));
       }
       else
       {

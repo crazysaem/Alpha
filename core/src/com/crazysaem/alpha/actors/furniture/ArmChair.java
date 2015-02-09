@@ -1,6 +1,6 @@
 package com.crazysaem.alpha.actors.furniture;
 
-import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
@@ -46,7 +46,7 @@ public class ArmChair extends CollisionRenderable implements Position, Angle, Te
     if (msg.message == FinishedMessage.MESSAGE_CODE && msg.extraInfo instanceof FinishedMessage &&
         ((FinishedMessage) msg.extraInfo).getFinishedMessageCode() == MoveMessage.MESSAGE_CODE)
     {
-      MessageDispatcher.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.SITTING, 1, 1.0f));
+      MessageManager.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.SITTING, 1, 1.0f));
 
       return true;
     }

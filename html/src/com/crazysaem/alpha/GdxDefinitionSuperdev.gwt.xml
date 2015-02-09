@@ -4,12 +4,11 @@
 	<inherits name='com.badlogic.gdx.backends.gdx_backends_gwt' />
 	<inherits name='com.badlogic.gdx.ai' />
 
-    <inherits name='AlphaGame' />
-	<entry-point class='com.crazysaem.alpha.client.HtmlLauncher' />
-	
-	<add-linker name="xsiframe"/>
-	<set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>
+    <inherits name='com.crazysaem.alpha.GdxDefinition' />
+    
+    <collapse-all-properties />
+    
+	<add-linker name="xsiframe"/>	
 	<set-configuration-property name="devModeRedirectEnabled" value="true"/>
-	
-	<set-configuration-property name="gdx.assetpath" value="../android/assets" />
+	<set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>	
 </module>

@@ -1,12 +1,11 @@
 package com.crazysaem.alpha.actors.furniture;
 
-import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.PartialColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.crazysaem.alpha.actors.protagonist.Elephant;
 import com.crazysaem.alpha.graphics.RenderBatch;
@@ -17,6 +16,8 @@ import com.crazysaem.alpha.messages.MoveMessage;
 import com.crazysaem.alpha.pathfinding.Angle;
 import com.crazysaem.alpha.pathfinding.Position;
 import com.crazysaem.alpha.picking.CollisionRenderable;
+
+//import com.badlogic.gdx.graphics.g3d.attributes.PartialColorAttribute;
 
 /**
  * Created by crazysaem on 24.06.2014.
@@ -44,7 +45,7 @@ public class Fridge extends CollisionRenderable implements AnimationController.A
     if ((selectedMaterial = RenderUtils.getMaterial(modelInstance, "Fridge")) != null)
     {
       selectedMaterial.set(new ColorAttribute(ColorAttribute.Diffuse, 192.0f / 256.0f, 237.0f / 256.0f, 97.0f / 256.0f, 1.0f));
-      selectedMaterial.set(new PartialColorAttribute(503.0f / 1024.0f, 0.0f));
+//      selectedMaterial.set(new PartialColorAttribute(503.0f / 1024.0f, 0.0f));
     }
 
 //    animationController.setAnimation(animationIDs[0], 1, 1.0f, this);
@@ -111,7 +112,7 @@ public class Fridge extends CollisionRenderable implements AnimationController.A
       animationController.setAnimation(animationIDs[0], 1, 1.0f, this);
       animationController.queue(animationIDs[0], 1, -1.0f, this, 0.05f);
 
-      MessageDispatcher.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.STANDING, -1, 1.0f));
+      MessageManager.getInstance().dispatchMessage(0.0f, this, msg.sender, ChangeAnimationMessage.MESSAGE_CODE, new ChangeAnimationMessage(Elephant.STANDING, -1, 1.0f));
 
       return true;
     }
