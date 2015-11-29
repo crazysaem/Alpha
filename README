@@ -1,6 +1,14 @@
 Project goal was (now discontinued):
 
 Create a video game that is a mash-up of Sims and Tamagochi.
+Video Link: https://www.youtube.com/watch?v=-gvPhCSEWGk
+
+Technical details:
+
+Blender was used to create 3D assets for the game: http://www.blender.org/
+The character moves via the A* path finding algorithm: https://en.wikipedia.org/wiki/A*_search_algorithm
+The graph points for A* to use, are generated dynamically, based on the 3D world given to it. This is done by placing points in a 2D grid slightly above the floor of the world. Between each point raytracing collision detection then determines whether these points are reachable or not.
+Custom shaders are used to create the blinking effect for the characters eyes.
 
 How to:
 Run (Desktop): gradlew desktop:run
