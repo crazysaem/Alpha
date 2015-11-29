@@ -1,28 +1,9 @@
-Tutorial for initial checkout:
+Project goal was (now discontinued):
 
-(Note: LibGDX 1.4.1 was used)
-Copy gdx-setup-1.4.1.jar to empty directory.
-Generate a project with the following settings:
+Create a video game that is a mash-up of Sims and Tamagochi.
 
-Name: 			  Alpha
-Package: 		  com.crazysaem.alpha
-Game class: 	  AlphaGame
 
-(The ones below could be changed):
-LibGDX Version:	Release 1.4.1
-Sub Projects:	Desktop, Android, Html
-Extensions:		Ai
-
-PRESS Generate!
-
-After the project was generated, copy all contents from the checkout over to the directory where
-the project was generated.
-
-A modified LibGDX version was used, which can be found here:
-https://github.com/crazysaem/libgdx
-Clone it, switch to branch 1.4.1_mods, build it with:
-  ant -f fetch.xml
-  ant
-Copy gdx.jar and gdx-sources.jar (with the right version extensions) to the gradle cache.
-
-Now import to IDEA, make sure that gradle is in offline mode to not override the custom gdx version, and GO!
+How to:
+Run (Desktop): gradlew desktop:run
+Build (Desktop): gradlew desktop:dist
+More info here: https://github.com/libgdx/libgdx/wiki/Gradle-on-the-Commandline
