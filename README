@@ -2,7 +2,6 @@ Project goal was (now discontinued):
 
 Create a video game that is a mash-up of Sims and Tamagochi.
 
-
 How to:
 Run (Desktop): gradlew desktop:run
 Build (Desktop): gradlew desktop:dist
